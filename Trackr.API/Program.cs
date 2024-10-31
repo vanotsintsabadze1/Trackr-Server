@@ -7,6 +7,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddLogging();
 builder.Services.ConfigureLogger();
+builder.Services.ConfigureVersioning();
 
 var app = builder.Build();
 
@@ -17,6 +18,7 @@ app.UseHttpsRedirection();
 
 app.UseGlobalExceptionHandler();
 app.UseAuthorization();
+app.UseApiVersioning();
 
 app.MapControllers();
 
