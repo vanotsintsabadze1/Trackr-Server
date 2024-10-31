@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
+using Serilog;
 using Trackr.API.Infrastructure.Errors;
 
 namespace Trackr.API.Infrastructure.Middlewares;
@@ -7,12 +8,10 @@ namespace Trackr.API.Infrastructure.Middlewares;
 public class GlobalExceptionHandlingMiddleware
 {
     private RequestDelegate _next;
-    private ILogger _logger;
 
-    public GlobalExceptionHandlingMiddleware(RequestDelegate next, ILogger logger)
+    public GlobalExceptionHandlingMiddleware(RequestDelegate next)
     {
         _next = next;
-        _logger = logger;
 
     }
 
@@ -34,10 +33,10 @@ public class GlobalExceptionHandlingMiddleware
 
         if (apiError.Status == (int)HttpStatusCode.InternalServerError)
         {
-            _logger.LogCritical("Critical error occured - {0}", ex.StackTrace);
+            Log.Fatal("Critical error occured - {0}", ex.StackTrace);
         } else
         {
-            _logger.LogError("Error occured - {0}", ex.StackTrace);
+            Log.Error("Error occured - {0}", ex.StackTrace);
         }
 
         ctx.Response.Clear();
