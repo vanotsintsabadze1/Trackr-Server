@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using Trackr.Application.Exceptions;
 
 namespace Trackr.API.Infrastructure.Errors;
 
@@ -8,7 +9,7 @@ public class APIError : ProblemDetails
     private string _unhandledErrorCode = "UnhanledErrorCode";
     private HttpContext _ctx;
     private Exception _ex;
-    public string Code { get; }
+    public string Code { get; set; }
 
     public string? TraceId
     {
@@ -38,6 +39,14 @@ public class APIError : ProblemDetails
     public void HandleException(Exception ex)
     {
 
+    }
+
+    public void HandleException(UserAlreadyExistsException ex)
+    {
+        Code = ex.Code;
+        Title = ex.Message;
+        Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.8";
+        Status = (int)HttpStatusCode.Conflict;
     }
     
 
