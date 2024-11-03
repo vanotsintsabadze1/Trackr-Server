@@ -1,4 +1,9 @@
 using Trackr.API.Infrastructure.Extensions;
+using Trackr.Application.Extensions;
+using Trackr.Infrastructure.Extensions;
+using FluentValidation;
+using System.Reflection;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +13,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddLogging();
 builder.Services.ConfigureLogger();
 builder.Services.ConfigureVersioning();
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices();
 
 var app = builder.Build();
 
