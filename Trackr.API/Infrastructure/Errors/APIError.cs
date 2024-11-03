@@ -56,7 +56,6 @@ public class APIError : ProblemDetails
         Title = ex.Message;
         Type = "https://datatracker.ietf.org/doc/html/rfc7235#section-3.1";
         Status = (int)HttpStatusCode.Unauthorized;
-        TraceId = ex.
     }
 
 
