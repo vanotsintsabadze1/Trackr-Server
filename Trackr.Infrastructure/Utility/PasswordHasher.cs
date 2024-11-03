@@ -17,7 +17,7 @@ internal class PasswordHasher : IPasswordHasher
         string hashToString = Convert.ToHexString(hash);
         string saltToString = Convert.ToHexString(salt);
 
-        return $"{hashToString} - {saltToString}";
+        return $"{hashToString}-{saltToString}";
     }
 
     public bool Verify(string password, string passwordHash)

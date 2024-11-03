@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Trackr.Application.Exceptions;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
 using Trackr.Domain.Models;
@@ -29,7 +30,7 @@ public class UserRepository : IUserRepository, IDisposable
     {
         string hashedPassword = _passwordHasher.Hash(user.Password);
 
-       using SqlCommand com = new SqlCommand("INSERT INTO Users (name, email, password) VALUES (@name, @email, @password)", connection:_con);
+        using SqlCommand com = new SqlCommand("INSERT INTO Users (name, email, password) VALUES (@name, @email, @password)", connection: _con);
         com.Parameters.AddWithValue("@name", user.Name);
         com.Parameters.AddWithValue("@email", user.Email);
         com.Parameters.AddWithValue("@password", hashedPassword);
@@ -70,12 +71,38 @@ public class UserRepository : IUserRepository, IDisposable
         return _users;
     }
 
+    public async Task<UserResponseModel?> Login(UserLoginRequestModel user)
+    {
+        using SqlCommand com = new("SELECT * FROM Users WHERE Email = @email", connection: _con);
+        com.Parameters.AddWithValue("@email", user.Email);
+        using SqlDataReader reader = await com.ExecuteReaderAsync();
+
+        await reader.ReadAsync();
+
+        var password = reader["Password"].ToString()!;
+        var matches = _passwordHasher.Verify(user.Password, password);
+
+        if (!matches)
+        {
+            return null;
+        }
+
+        UserResponseModel response = new()
+        {
+            Name = reader["Name"].ToString()!,
+            Email = reader["Email"].ToString()!,
+        };
+
+        return response;
+
+    }
+
     public async Task<bool> GetByEmail(string email)
     {
         using SqlCommand com = new("SELECT * FROM Users WHERE email = @email", connection: _con);
         com.Parameters.AddWithValue("@email", email);
         using SqlDataReader reader = await com.ExecuteReaderAsync();
-        
+
         if (await reader.ReadAsync())
         {
             await reader.CloseAsync();

@@ -5,4 +5,6 @@ namespace Trackr.Application.Interfaces;
 public interface IUserService
 {
     Task<UserResponseModel> Register(UserRequestModel user);
+    Task<UserResponseModel> Login(UserLoginRequestModel user);
+
 }

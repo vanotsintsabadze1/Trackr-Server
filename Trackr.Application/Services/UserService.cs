@@ -26,4 +26,23 @@ public class UserService : IUserService
 
         return user.Adapt<UserResponseModel>();
     }
+
+    public async Task<UserResponseModel> Login(UserLoginRequestModel user)
+    {
+        var exists = await _userRepository.GetByEmail(user.Email);
+
+        if (!exists)
+        {
+            throw new UserInvalidCredentialsException("The user with such email does not exist", "InvalidEmail");
+        }
+
+        var response = await _userRepository.Login(user);
+
+        if (response is null)
+        {
+            throw new UserInvalidCredentialsException("The password is incorrect for the given user", "InvalidPassword");
+        }
+
+        return response;
+    }
 }

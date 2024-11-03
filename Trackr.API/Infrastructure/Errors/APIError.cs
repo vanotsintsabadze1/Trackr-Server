@@ -30,6 +30,7 @@ public class APIError : ProblemDetails
         _ex = ex;
         Code = _unhandledErrorCode;
         Title = ex.Message;
+        TraceId = ctx.TraceIdentifier;
         Status = (int)HttpStatusCode.InternalServerError;
         Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1";
 
@@ -48,7 +49,15 @@ public class APIError : ProblemDetails
         Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.8";
         Status = (int)HttpStatusCode.Conflict;
     }
-    
+
+    public void HandleException(UserInvalidCredentialsException ex)
+    {
+        Code = ex.Code;
+        Title = ex.Message;
+        Type = "https://datatracker.ietf.org/doc/html/rfc7235#section-3.1";
+        Status = (int)HttpStatusCode.Unauthorized;
+        TraceId = ex.
+    }
 
 
 }
