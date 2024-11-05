@@ -8,6 +8,6 @@ public interface IUserRepository
     Task<UserRequestModel> Register(UserRequestModel user);
     bool Delete(string id);
     User Edit(string id);
-    Task<bool> GetByEmail(string email);
+    Task<User?> GetByEmail(string email);
     Task<UserResponseModel?> Login(UserLoginRequestModel user);
 }

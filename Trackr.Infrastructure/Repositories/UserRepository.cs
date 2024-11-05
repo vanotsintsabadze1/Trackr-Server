@@ -1,6 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using Trackr.Application.Exceptions;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
 using Trackr.Domain.Models;
@@ -30,7 +29,7 @@ public class UserRepository : IUserRepository, IDisposable
     {
         string hashedPassword = _passwordHasher.Hash(user.Password);
 
-        using SqlCommand com = new SqlCommand("INSERT INTO Users (name, email, password) VALUES (@name, @email, @password)", connection: _con);
+        using SqlCommand com = new SqlCommand("INSERT INTO Users (Name, Email, Password) VALUES (@name, @email, @password)", connection: _con);
         com.Parameters.AddWithValue("@name", user.Name);
         com.Parameters.AddWithValue("@email", user.Email);
         com.Parameters.AddWithValue("@password", hashedPassword);
@@ -58,11 +57,11 @@ public class UserRepository : IUserRepository, IDisposable
         {
             User user = new()
             {
-                Id = reader["user_id"].ToString() ?? string.Empty,
-                CreatedAt = (DateTime)reader["created_at"],
-                Name = reader["name"].ToString() ?? string.Empty,
-                Email = reader["email"].ToString() ?? string.Empty,
-                Password = reader["password"].ToString() ?? string.Empty
+                Id = reader["Id"].ToString() ?? string.Empty,
+                CreatedAt = (DateTime)reader["CreatedAt"],
+                Name = reader["Name"].ToString() ?? string.Empty,
+                Email = reader["Email"].ToString() ?? string.Empty,
+                Password = reader["Password"].ToString() ?? string.Empty
             };
             _users.Add(user);
         }
@@ -73,14 +72,9 @@ public class UserRepository : IUserRepository, IDisposable
 
     public async Task<UserResponseModel?> Login(UserLoginRequestModel user)
     {
-        using SqlCommand com = new("SELECT * FROM Users WHERE Email = @email", connection: _con);
-        com.Parameters.AddWithValue("@email", user.Email);
-        using SqlDataReader reader = await com.ExecuteReaderAsync();
+        var userFromDb = await GetByEmail(user.Email);
 
-        await reader.ReadAsync();
-
-        var password = reader["Password"].ToString()!;
-        var matches = _passwordHasher.Verify(user.Password, password);
+        var matches = _passwordHasher.Verify(user.Password, userFromDb!.Password);
 
         if (!matches)
         {
@@ -89,26 +83,35 @@ public class UserRepository : IUserRepository, IDisposable
 
         UserResponseModel response = new()
         {
-            Name = reader["Name"].ToString()!,
-            Email = reader["Email"].ToString()!,
+            Name = userFromDb.Name,
+            Email = userFromDb.Email,
         };
 
         return response;
 
     }
 
-    public async Task<bool> GetByEmail(string email)
+    public async Task<User?> GetByEmail(string email)
     {
-        using SqlCommand com = new("SELECT * FROM Users WHERE email = @email", connection: _con);
+        using SqlCommand com = new("SELECT * FROM Users WHERE Email  = @email", connection: _con);
         com.Parameters.AddWithValue("@email", email);
         using SqlDataReader reader = await com.ExecuteReaderAsync();
 
         if (await reader.ReadAsync())
         {
-            await reader.CloseAsync();
-            return true;
+
+            User user = new()
+            {
+                Id = reader["Id"].ToString() ?? string.Empty,
+                CreatedAt = (DateTime)reader["CreatedAt"],
+                Name = reader["Name"].ToString() ?? string.Empty,
+                Email = reader["Email"].ToString() ?? string.Empty,
+                Password = reader["Password"].ToString() ?? string.Empty
+            };
+            return user;
         }
 
-        return false;
+        return null;
+
     }
 }
