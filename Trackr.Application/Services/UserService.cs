@@ -9,15 +9,20 @@ public class UserService : IUserService
 {
     private IUserRepository _userRepository;
     private IPasswordHasher _passwordHasher;
-    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher)
+    private ICookieAuthenticator _cookieAuthenticator;
+
+    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher, ICookieAuthenticator cookieAuthenticator)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
+        _cookieAuthenticator = cookieAuthenticator;
     }
 
     public async Task<UserResponseModel> Register(UserRequestModel user)
     {
-        if (await _userRepository.GetByEmail(user.Email))
+        var userFromDb = await _userRepository.GetByEmail(user.Email); 
+
+        if (userFromDb is not null)
         {
             throw new UserAlreadyExistsException("User already exists with this email address");
         }
@@ -29,20 +34,22 @@ public class UserService : IUserService
 
     public async Task<UserResponseModel> Login(UserLoginRequestModel user)
     {
-        var exists = await _userRepository.GetByEmail(user.Email);
+        var userFromDb = await _userRepository.GetByEmail(user.Email);
 
-        if (!exists)
+        if (userFromDb is null)
         {
             throw new UserInvalidCredentialsException("The user with such email does not exist", "InvalidEmail");
         }
 
-        var response = await _userRepository.Login(user);
+        var userResponseModel = await _userRepository.Login(user);
 
-        if (response is null)
+        if (userResponseModel is null)
         {
             throw new UserInvalidCredentialsException("The password is incorrect for the given user", "InvalidPassword");
         }
 
-        return response;
+        await _cookieAuthenticator.SignInAsync(user);
+
+        return userResponseModel;
     }
 }
