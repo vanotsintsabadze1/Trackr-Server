@@ -25,7 +25,7 @@ public class CookieAuthenticator : ICookieAuthenticator
         var claims = new List<Claim>() {
             new Claim(ClaimTypes.Name, userFromDb.Name),
             new Claim(ClaimTypes.Email, userFromDb.Email),
-            new Claim(ClaimTypes.NameIdentifier, userFromDb.Id),
+            new Claim(ClaimTypes.NameIdentifier, userFromDb.Id.ToString()),
         };
         var claimsIdentity = new ClaimsIdentity(claims, "Cookie");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);

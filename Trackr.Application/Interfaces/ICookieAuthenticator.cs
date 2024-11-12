@@ -1,5 +1,4 @@
 ﻿using Trackr.Application.Models;
-using Trackr.Domain.Models;
 
 namespace Trackr.Application.Interfaces;
 

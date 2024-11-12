@@ -1,4 +1,4 @@
-﻿namespace Trackr.Application.Models;
+﻿namespace Trackr.Application.Models.Users;
 
 public class UserRequestModel
 {

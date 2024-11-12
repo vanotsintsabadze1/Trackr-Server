@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
+using Trackr.Application.Models.Users;
 
 namespace Trackr.API.Controllers;
 

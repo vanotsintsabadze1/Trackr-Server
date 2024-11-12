@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
+using Trackr.Application.Models.Users;
 using Trackr.Domain.Models;
 
 namespace Trackr.Infrastructure.Repositories;
@@ -28,13 +29,14 @@ public class UserRepository : IUserRepository, IDisposable
     public async Task<UserRequestModel> Register(UserRequestModel user)
     {
         string hashedPassword = _passwordHasher.Hash(user.Password);
-
-        await _con.ExecuteAsync("INSERT INTO Users (Name, Email, Password) VALUES (@name, @email, @password)",
+        
+        await _con.ExecuteAsync("INSERT INTO Users (Name, Email, Password, Balance) VALUES (@name, @email, @password, @balance)",
         new
         {
             name = user.Name,
             email = user.Email,
-            password = hashedPassword
+            password = hashedPassword,
+            balance = 0M,
         });
 
         return user;
