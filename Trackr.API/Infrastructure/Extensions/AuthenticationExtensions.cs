@@ -8,7 +8,7 @@ public static class AuthenticationExtensions
                 .AddCookie("Cookie", options =>
         {
             options.Cookie.Name = "session";
-            options.ExpireTimeSpan = TimeSpan.FromDays(1);
+            options.ExpireTimeSpan = TimeSpan.FromDays(9);
             options.SlidingExpiration = true;
             options.Cookie.SameSite = SameSiteMode.None;
             options.Cookie.SecurePolicy = CookieSecurePolicy.Always;

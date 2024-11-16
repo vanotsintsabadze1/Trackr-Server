@@ -24,10 +24,10 @@ public class TransactionController : ControllerBase
     [Authorize]
     [ApiVersion(1)]
     [HttpGet("GetUserTransactions")]
-    public async Task<List<Transaction>> GetAll()
+    public async Task<List<Transaction>> GetUserTransactions(int count, int page)
     {
         int id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        var transactions = await _tranService.GetUserTransactions(id);
+        var transactions = await _tranService.GetUserTransactions(id, count, page);
         return transactions;
     }
 
@@ -40,5 +40,26 @@ public class TransactionController : ControllerBase
         int id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
         var responseTransaction = await _tranService.AddTransaction(transaction, id);
         return responseTransaction;
+    }
+
+    [Authorize]
+    [ApiVersion(1)]
+    [HttpGet("GetLatestTransaction")]
+    [Produces("application/json")]
+    public async Task<List<Transaction>> GetLatestTransaction(int transactionCount)
+    {
+        int id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+        var latestTransactions = await _tranService.GetLatestTransactions(transactionCount, id);
+        return latestTransactions;
+    }
+
+    [Authorize]
+    [ApiVersion(1)]
+    [HttpDelete("DeleteTransaction")]
+    [Produces("application/json")]
+    public async Task<Transaction> DeleteTransaction(int transactionId)
+    {
+        var transaction = await _tranService.DeleteTransaction(transactionId);
+        return transaction;
     }
 }

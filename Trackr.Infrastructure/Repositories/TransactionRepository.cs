@@ -34,31 +34,51 @@ public class TransactionRepository : ITransactionRepository, IDisposable
                 description = transaction.Description,
                 amount = transaction.Amount,
             });
-
         return newTransaction!;
-        
     }
 
-    public Task<Transaction> DeleteTransaction(int transactionId)
+    public async Task<Transaction> DeleteTransaction(int transactionId)
     {
-        throw new NotImplementedException();
+        var transaction = await _con.QueryFirstOrDefaultAsync<Transaction>("DELETE FROM Transactions OUTPUT DELETED.* WHERE Id = @transactionid", new { transactionId });
+        return transaction!;
     }
-
 
     public Task<Transaction> EditTransaction(TransactionRequestModel transaction)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Transaction> GetTransactionById(int transactionId)
+    public Task<Transaction?> GetTransactionById(int transactionId)
     {
-        throw new NotImplementedException();
+        var transaction = _con.QueryFirstOrDefaultAsync<Transaction>("SELECT * FROM Transactions WHERE Id = @transactionId", new { transactionId });
+        return transaction;
     }
 
-    public async Task<List<Transaction>> GetUserTransactions(int userId)
+    public async Task<List<Transaction>> GetUserTransactions(int userId, int count, int page)
     {
-        var transactions = await _con.QueryAsync<Transaction>("SELECT * FROM Transactions WHERE UserId = @userId", new { userId });
 
+        if (count == 0 || page == 0)
+        {
+            return new List<Transaction>();
+        }
+
+        var offset = (page - 1) * count;
+        var transactions = await _con.QueryAsync<Transaction>(
+            "SELECT * FROM Transactions WHERE UserId = @userId ORDER BY TranDate DESC OFFSET @offset ROWS FETCH NEXT @count ROWS ONLY",
+            new { userId, offset, count }
+        );
+
+        return transactions.ToList() ?? new List<Transaction>();
+    }
+
+    public async Task<List<Transaction>> GetLatestTransaction(int transactionCount, int userId)
+    {
+        var transactions = await _con.QueryAsync<Transaction>("SELECT TOP (@transactionCount) * FROM Transactions WHERE UserId = @userId ORDER BY TranDate DESC",
+            new
+            {
+                transactionCount,
+                userId
+            });
         return transactions.ToList() ?? new List<Transaction>();
     }
 }
