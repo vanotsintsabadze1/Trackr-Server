@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Trackr.Application.Models;
+using Trackr.Application.Models.Users;
 
 namespace Trackr.API.Infrastructure.Validators;
 

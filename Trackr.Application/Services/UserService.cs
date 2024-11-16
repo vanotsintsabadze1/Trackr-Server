@@ -2,6 +2,7 @@
 using Trackr.Application.Exceptions;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
+using Trackr.Application.Models.Users;
 
 namespace Trackr.Application.Services;
 
