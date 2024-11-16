@@ -12,7 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.ConfigureLogger();
 builder.Services.ConfigureVersioning();
-builder.Services.ConfigureAuthentication();
+builder.Services.ConfigureAuthentication(builder.Configuration);
 
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();

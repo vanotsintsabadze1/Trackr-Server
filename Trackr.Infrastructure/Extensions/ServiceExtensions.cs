@@ -13,6 +13,7 @@ public static class ServiceExtensions
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ICookieAuthenticator, CookieAuthenticator>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
+        services.AddScoped<IJwtManager, JwtManager>();
         return services;
     }
 }

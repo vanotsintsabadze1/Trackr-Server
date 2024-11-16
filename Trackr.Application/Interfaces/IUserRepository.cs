@@ -10,5 +10,5 @@ public interface IUserRepository
     bool Delete(string id);
     User Edit(string id);
     Task<User?> GetByEmail(string email);
-    Task<UserResponseModel?> Login(UserLoginRequestModel user);
+    Task<User?> Login(UserLoginRequestModel user);
 }
