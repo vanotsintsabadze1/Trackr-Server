@@ -7,10 +7,9 @@ using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
 builder.Services.ConfigureLogger();
+builder.Services.ConfigureSwagger();
 builder.Services.ConfigureVersioning();
 builder.Services.ConfigureAuthentication(builder.Configuration);
 
