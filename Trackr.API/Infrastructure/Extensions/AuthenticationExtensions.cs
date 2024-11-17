@@ -1,19 +1,28 @@
-﻿namespace Trackr.API.Infrastructure.Extensions;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+namespace Trackr.API.Infrastructure.Extensions;
 
 public static class AuthenticationExtensions
 {
-    public static IServiceCollection ConfigureAuthentication(this IServiceCollection services)
+    public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddAuthentication("Cookie")
-                .AddCookie("Cookie", options =>
+        services.AddAuthentication(x =>
         {
-            options.Cookie.Name = "session";
-            options.ExpireTimeSpan = TimeSpan.FromDays(9);
-            options.SlidingExpiration = true;
-            options.Cookie.SameSite = SameSiteMode.None;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(x =>
+        {
+            var key = configuration["Jwt:SecretKey"]!;
+            x.TokenValidationParameters = new TokenValidationParameters()
+            {
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+            };
+
         });
-        services.AddAuthorization();
 
         return services;
     }

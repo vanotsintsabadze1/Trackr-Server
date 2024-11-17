@@ -30,9 +30,9 @@ public class UserController : ControllerBase
 
     [ApiVersion(1)]
     [HttpPost("Login")]
-    public async Task<UserResponseModel> Login([FromBody] UserLoginRequestModel user)
+    public async Task<string> Login([FromBody] UserLoginRequestModel user)
     {
-        UserResponseModel res = await _userService.Login(user);
+        string res = await _userService.Login(user);
         return res;
     }
 }

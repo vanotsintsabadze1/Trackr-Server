@@ -10,13 +10,13 @@ public class UserService : IUserService
 {
     private IUserRepository _userRepository;
     private IPasswordHasher _passwordHasher;
-    private ICookieAuthenticator _cookieAuthenticator;
+    private IJwtManager _jwtManager;
 
-    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher, ICookieAuthenticator cookieAuthenticator)
+    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtManager jwtManager)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
-        _cookieAuthenticator = cookieAuthenticator;
+        _jwtManager = jwtManager;
     }
 
     public async Task<UserResponseModel> Register(UserRequestModel user)
@@ -33,7 +33,7 @@ public class UserService : IUserService
         return user.Adapt<UserResponseModel>();
     }
 
-    public async Task<UserResponseModel> Login(UserLoginRequestModel user)
+    public async Task<string> Login(UserLoginRequestModel user)
     {
         var userFromDb = await _userRepository.GetByEmail(user.Email);
 
@@ -49,8 +49,9 @@ public class UserService : IUserService
             throw new UserInvalidCredentialsException("The password is incorrect for the given user", "InvalidPassword");
         }
 
-        await _cookieAuthenticator.SignInAsync(user);
+        var token = await _jwtManager.Create(userFromDb);
 
-        return userResponseModel;
+        return token;
+
     }
 }

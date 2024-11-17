@@ -59,7 +59,7 @@ public class UserRepository : IUserRepository, IDisposable
         return listOfUsers;
     }
 
-    public async Task<UserResponseModel?> Login(UserLoginRequestModel user)
+    public async Task<User?> Login(UserLoginRequestModel user)
     {
         var userFromDb = await GetByEmail(user.Email);
 
@@ -70,14 +70,7 @@ public class UserRepository : IUserRepository, IDisposable
             return null;
         }
 
-        UserResponseModel response = new()
-        {
-            Name = userFromDb.Name,
-            Email = userFromDb.Email,
-        };
-
-        return response;
-
+        return userFromDb;
     }
 
     public async Task<User?> GetByEmail(string email)
