@@ -11,4 +11,5 @@ public interface IUserRepository
     User Edit(string id);
     Task<User?> GetByEmail(string email);
     Task<User?> Login(UserLoginRequestModel user);
+    Task<User> GetById(int id);
 }

@@ -6,9 +6,9 @@ namespace Trackr.API.Infrastructure.Errors;
 
 public class APIError : ProblemDetails
 {
-    private string _unhandledErrorCode = "UnhanledErrorCode";
-    private HttpContext _ctx;
-    private Exception _ex;
+    private const string _unhandledErrorCode = "UnhandledErrorCode";
+    
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public string Code { get; set; }
 
     public string? TraceId
@@ -26,8 +26,6 @@ public class APIError : ProblemDetails
 
     public APIError(HttpContext ctx, Exception ex)
     {
-        _ctx = ctx;
-        _ex = ex;
         Code = _unhandledErrorCode;
         Title = ex.Message;
         TraceId = ctx.TraceIdentifier;
@@ -37,12 +35,7 @@ public class APIError : ProblemDetails
         HandleException((dynamic)ex);
     }
 
-    public void HandleException(Exception ex)
-    {
-
-    }
-
-    public void HandleException(UserAlreadyExistsException ex)
+    private void HandleException(UserAlreadyExistsException ex)
     {
         Code = ex.Code;
         Title = ex.Message;
@@ -50,7 +43,7 @@ public class APIError : ProblemDetails
         Status = (int)HttpStatusCode.Conflict;
     }
 
-    public void HandleException(UserInvalidCredentialsException ex)
+    private void HandleException(UserInvalidCredentialsException ex)
     {
         Code = ex.Code;
         Title = ex.Message;
@@ -58,5 +51,19 @@ public class APIError : ProblemDetails
         Status = (int)HttpStatusCode.Unauthorized;
     }
 
+    private void HandleException(InvalidTransactionException ex)
+    {
+        Code = ex.Code;
+        Title = ex.Message;
+        Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1";
+        Status = (int)HttpStatusCode.BadRequest;
+    }
 
+    private void HandleException(UserUnauthorizedException ex)
+    {
+        Code = ex.Code;
+        Title = ex.Message;
+        Type = "https://datatracker.ietf.org/doc/html/rfc7235#section-3.1";
+        Status = (int)HttpStatusCode.Unauthorized;
+    }
 }

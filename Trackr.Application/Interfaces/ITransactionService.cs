@@ -8,5 +8,6 @@ public interface ITransactionService
     Task<List<Transaction>> GetUserTransactions(int userId, int count, int page);
     Task<Transaction> AddTransaction(TransactionRequestModel transaction, int userId);
     Task<List<Transaction>> GetLatestTransactions(int transactionCount, int userId);
-    Task<Transaction> DeleteTransaction(int transactionId);
+    Task<Transaction> DeleteTransaction(int transactionId, int userId);
+    Task<Transaction> EditTransaction(TransactionRequestModel transaction, int transactionId, int userId);
 }
