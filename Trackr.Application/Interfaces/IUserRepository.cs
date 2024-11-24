@@ -6,7 +6,7 @@ namespace Trackr.Application.Interfaces;
 public interface IUserRepository
 {
     Task<List<User>> GetAll();
-    Task<UserRequestModel> Register(UserRequestModel user);
+    Task<UserRequestModel> Register(UserRequestModel user, string hashedPassword);
     bool Delete(string id);
     User Edit(string id);
     Task<User?> GetByEmail(string email);

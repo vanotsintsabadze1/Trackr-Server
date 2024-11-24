@@ -8,7 +8,7 @@ internal class PasswordHasher : IPasswordHasher
     private const int saltSize = 16;
     private const int hashSize = 32;
     private const int iterations = 100000;
-    private HashAlgorithmName alg = HashAlgorithmName.SHA256;
+    private readonly HashAlgorithmName alg = HashAlgorithmName.SHA256;
 
     public string Hash(string password)
     {

@@ -8,9 +8,9 @@ namespace Trackr.Application.Services;
 
 public class UserService : IUserService
 {
-    private IUserRepository _userRepository;
-    private IPasswordHasher _passwordHasher;
-    private IJwtManager _jwtManager;
+    private readonly IUserRepository _userRepository;
+    private readonly IPasswordHasher _passwordHasher;
+    private readonly IJwtManager _jwtManager;
 
     public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtManager jwtManager)
     {
@@ -28,7 +28,9 @@ public class UserService : IUserService
             throw new UserAlreadyExistsException("User already exists with this email address");
         }
 
-        await _userRepository.Register(user);
+        var hashedPassword = _passwordHasher.Hash(user.Password);
+
+        await _userRepository.Register(user, hashedPassword);
 
         return user.Adapt<UserResponseModel>();
     }
@@ -42,9 +44,9 @@ public class UserService : IUserService
             throw new UserInvalidCredentialsException("The user with such email does not exist", "InvalidEmail");
         }
 
-        var userResponseModel = await _userRepository.Login(user);
-
-        if (userResponseModel is null)
+        var matches = _passwordHasher.Verify(user.Password, userFromDb.Password);
+        
+        if (!matches)
         {
             throw new UserInvalidCredentialsException("The password is incorrect for the given user", "InvalidPassword");
         }
@@ -52,6 +54,5 @@ public class UserService : IUserService
         var token = await _jwtManager.Create(userFromDb);
 
         return token;
-
     }
 }

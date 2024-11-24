@@ -10,15 +10,12 @@ namespace Trackr.Infrastructure.Repositories;
 
 public class UserRepository : IUserRepository, IDisposable
 {
-    private string _conString;
-    private SqlConnection _con;
-    private IPasswordHasher _passwordHasher;
+    private readonly SqlConnection _con;
 
-    public UserRepository(IConfiguration configuration, IPasswordHasher passwordHasher)
+    public UserRepository(IConfiguration configuration)
     {
-        _passwordHasher = passwordHasher;
-        _conString = configuration.GetConnectionString(name: "DefaultConnection")!;
-        _con = new(_conString);
+        var conString = configuration.GetConnectionString(name: "DefaultConnection")!;
+        _con = new(conString);
         _con.Open();
     }
     public void Dispose()
@@ -26,10 +23,8 @@ public class UserRepository : IUserRepository, IDisposable
         _con.Close();
     }
 
-    public async Task<UserRequestModel> Register(UserRequestModel user)
+    public async Task<UserRequestModel> Register(UserRequestModel user, string hashedPassword)
     {
-        string hashedPassword = _passwordHasher.Hash(user.Password);
-        
         await _con.ExecuteAsync("INSERT INTO Users (Name, Email, Password, Balance) VALUES (@name, @email, @password, @balance)",
         new
         {
@@ -62,14 +57,6 @@ public class UserRepository : IUserRepository, IDisposable
     public async Task<User?> Login(UserLoginRequestModel user)
     {
         var userFromDb = await GetByEmail(user.Email);
-
-        var matches = _passwordHasher.Verify(user.Password, userFromDb!.Password);
-
-        if (!matches)
-        {
-            return null;
-        }
-
         return userFromDb;
     }
 
