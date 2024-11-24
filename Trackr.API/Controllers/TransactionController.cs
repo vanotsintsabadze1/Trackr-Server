@@ -15,8 +15,8 @@ namespace Trackr.API.Controllers;
 [Route("/v{version:apiversion}/[controller]")]
 public class TransactionController : ControllerBase
 {
-    private ITransactionService _tranService;
-    private HttpContext _ctx;
+    private readonly ITransactionService _tranService;
+    private readonly HttpContext _ctx;
 
     public TransactionController(ITransactionService tranService, IHttpContextAccessor ctx)
     {
@@ -60,7 +60,7 @@ public class TransactionController : ControllerBase
     [ApiVersion(1)]
     [HttpDelete("DeleteTransaction/{transactionId}")]
     [Produces("application/json")]
-    public async Task<Transaction> DeleteTransaction(int transactionId)
+    public async Task<Transaction> DeleteTransaction(string transactionId)
     {
         var id = CredentialRetriever.GetUserId(_ctx);
         var transaction = await _tranService.DeleteTransaction(transactionId, id);
@@ -71,7 +71,7 @@ public class TransactionController : ControllerBase
     [ApiVersion(1)]
     [HttpPut("EditTransaction/{transactionId}")]
     [Produces("application/json")]
-    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, int transactionId)
+    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, string transactionId)
     {
         var id = CredentialRetriever.GetUserId(_ctx);
         var transaction = await _tranService.EditTransaction(newTransaction, transactionId, id);

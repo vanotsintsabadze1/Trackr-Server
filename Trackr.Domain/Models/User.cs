@@ -1,7 +1,7 @@
 ﻿namespace Trackr.Domain.Models;
 public class User
 {
-    public required int Id { get; set; }
+    public required Guid Id { get; set; } = Guid.NewGuid();
     public required string Name { get; set; }
     public required string Email { get; set; }
     public required string Password { get; set; }

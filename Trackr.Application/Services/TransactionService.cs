@@ -14,25 +14,25 @@ internal class TransactionService : ITransactionService
         _tranRepository = tranRepository;
     }
 
-    public async Task<List<Transaction>> GetUserTransactions(int userId, int count, int page)
+    public async Task<List<Transaction>> GetUserTransactions(string userId, int count, int page)
     {
         List<Transaction> transactions = await _tranRepository.GetUserTransactions(userId, count, page);
         return transactions;
     }
 
-    public async Task<Transaction> AddTransaction(TransactionRequestModel transaction, int userId)
+    public async Task<Transaction> AddTransaction(TransactionRequestModel transaction, string userId)
     {
         var responseTransaction = await _tranRepository.AddTransaction(transaction, userId);
         return responseTransaction;
     }
 
-    public async Task<List<Transaction>> GetLatestTransactions(int transactionCount, int userId)
+    public async Task<List<Transaction>> GetLatestTransactions(int transactionCount, string userId)
     {
         var responseTransactions = await _tranRepository.GetLatestTransaction(transactionCount, userId);
         return responseTransactions;
     }
 
-    public async Task<Transaction> DeleteTransaction(int transactionId, int userId)
+    public async Task<Transaction> DeleteTransaction(string transactionId, string userId)
     {
         var transactionFromDB = await _tranRepository.GetTransactionById(transactionId);
 
@@ -41,7 +41,7 @@ internal class TransactionService : ITransactionService
             throw new InvalidTransactionException("Transaction does not exist with that id", "InvalidTransaction");
         }
 
-        if (transactionFromDB.UserId != userId)
+        if (transactionFromDB.UserId.ToString() != userId)
         {
             throw new UserUnauthorizedException("User is not authorized to delete this particular transaction");
         }
@@ -50,7 +50,7 @@ internal class TransactionService : ITransactionService
         return transaction;
     }
 
-    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, int transactionId, int userId)
+    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, string transactionId, string userId)
     {
         var transactionFromDb = await _tranRepository.GetTransactionById(transactionId);
 
@@ -59,7 +59,7 @@ internal class TransactionService : ITransactionService
             throw new InvalidTransactionException("Transaction does not exist with that id", "InvalidTransaction");
         }
 
-        if (transactionFromDb.UserId != userId)
+        if (transactionFromDb.UserId.ToString() != userId)
         {
             throw new UserUnauthorizedException("User is not authorized to edit this particular transaction");
         }

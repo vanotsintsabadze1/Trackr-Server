@@ -35,6 +35,11 @@ public class APIError : ProblemDetails
         HandleException((dynamic)ex);
     }
 
+    private void HandleException(Exception ex)
+    {
+        
+    }
+
     private void HandleException(UserAlreadyExistsException ex)
     {
         Code = ex.Code;

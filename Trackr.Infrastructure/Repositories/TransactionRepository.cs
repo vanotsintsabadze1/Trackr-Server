@@ -9,13 +9,12 @@ namespace Trackr.Infrastructure.Repositories;
 
 public class TransactionRepository : ITransactionRepository, IDisposable
 {
-    private string _conString;
-    private SqlConnection _con;
+    private readonly SqlConnection _con;
 
     public TransactionRepository(IConfiguration configuration)
     {
-        _conString = configuration.GetConnectionString(name: "DefaultConnection")!;
-        _con = new(_conString);
+        var conString = configuration.GetConnectionString(name: "DefaultConnection")!;
+        _con = new(conString);
         _con.Open();
     }
     public void Dispose()
@@ -23,11 +22,12 @@ public class TransactionRepository : ITransactionRepository, IDisposable
         _con.Close();
     }
 
-    public async Task<Transaction> AddTransaction(TransactionRequestModel transaction, int userId)
+    public async Task<Transaction> AddTransaction(TransactionRequestModel transaction, string userId)
     {
-        var newTransaction = await _con.QuerySingleOrDefaultAsync<Transaction>("INSERT INTO Transactions (UserId, Type, Title, Description, Amount) OUTPUT INSERTED.* VALUES (@userId, @type, @title, @description, @amount)",
+        var newTransaction = await _con.QuerySingleOrDefaultAsync<Transaction>("INSERT INTO Transactions (Id, UserId, Type, Title, Description, Amount) OUTPUT INSERTED.* VALUES (@id, @userId, @type, @title, @description, @amount)",
             new
             {
+                id = Guid.NewGuid(),
                 userId,
                 type = transaction.Type,
                 title = transaction.Title,
@@ -37,13 +37,13 @@ public class TransactionRepository : ITransactionRepository, IDisposable
         return newTransaction!;
     }
 
-    public async Task<Transaction> DeleteTransaction(int transactionId)
+    public async Task<Transaction> DeleteTransaction(string transactionId)
     {
         var transaction = await _con.QueryFirstOrDefaultAsync<Transaction>("DELETE FROM Transactions OUTPUT DELETED.* WHERE Id = @transactionid", new { transactionId });
         return transaction!;
     }
 
-    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, int transactionId)
+    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, string transactionId)
     {
         var transaction = await _con.QueryFirstOrDefaultAsync<Transaction>("UPDATE Transactions SET Title = @title, Description = @description, Type = @type, Amount = @amount OUTPUT INSERTED.* WHERE Id = @id", new
         {
@@ -57,13 +57,13 @@ public class TransactionRepository : ITransactionRepository, IDisposable
         return transaction!;
     }
 
-    public Task<Transaction?> GetTransactionById(int transactionId)
+    public Task<Transaction?> GetTransactionById(string transactionId)
     {
         var transaction = _con.QueryFirstOrDefaultAsync<Transaction>("SELECT * FROM Transactions WHERE Id = @transactionId", new { transactionId });
         return transaction;
     }
 
-    public async Task<List<Transaction>> GetUserTransactions(int userId, int count, int page)
+    public async Task<List<Transaction>> GetUserTransactions(string userId, int count, int page)
     {
 
         if (count == 0 || page == 0)
@@ -80,7 +80,7 @@ public class TransactionRepository : ITransactionRepository, IDisposable
         return transactions.ToList() ?? new List<Transaction>();
     }
 
-    public async Task<List<Transaction>> GetLatestTransaction(int transactionCount, int userId)
+    public async Task<List<Transaction>> GetLatestTransaction(int transactionCount, string userId)
     {
         var transactions = await _con.QueryAsync<Transaction>("SELECT TOP (@transactionCount) * FROM Transactions WHERE UserId = @userId ORDER BY TranDate DESC",
             new

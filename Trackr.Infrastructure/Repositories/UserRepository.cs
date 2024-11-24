@@ -25,9 +25,10 @@ public class UserRepository : IUserRepository, IDisposable
 
     public async Task<UserRequestModel> Register(UserRequestModel user, string hashedPassword)
     {
-        await _con.ExecuteAsync("INSERT INTO Users (Name, Email, Password, Balance) VALUES (@name, @email, @password, @balance)",
+        await _con.ExecuteAsync("INSERT INTO Users (Id, Name, Email, Password, Balance) VALUES (@id, @name, @email, @password, @balance)",
         new
         {
+            @id = Guid.NewGuid(),
             name = user.Name,
             email = user.Email,
             password = hashedPassword,
