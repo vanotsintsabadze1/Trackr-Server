@@ -43,9 +43,18 @@ public class TransactionRepository : ITransactionRepository, IDisposable
         return transaction!;
     }
 
-    public Task<Transaction> EditTransaction(TransactionRequestModel transaction)
+    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, int transactionId)
     {
-        throw new NotImplementedException();
+        var transaction = await _con.QueryFirstOrDefaultAsync<Transaction>("UPDATE Transactions SET Title = @title, Description = @description, Type = @type, Amount = @amount OUTPUT INSERTED.* WHERE Id = @id", new
+        {
+            title = newTransaction.Title,
+            description = newTransaction.Description,
+            type = newTransaction.Type,
+            amount = newTransaction.Amount,
+            id = transactionId,
+        });
+
+        return transaction!;
     }
 
     public Task<Transaction?> GetTransactionById(int transactionId)

@@ -8,6 +8,6 @@ public interface ITransactionRepository
     Task<Transaction?> GetTransactionById(int transactionId);
     Task<Transaction> AddTransaction(TransactionRequestModel transaction, int userId);
     Task<Transaction> DeleteTransaction(int transactionId);
-    Task<Transaction> EditTransaction(TransactionRequestModel transaction);
+    Task<Transaction> EditTransaction(TransactionRequestModel transaction, int transactionId);
     Task<List<Transaction>> GetLatestTransaction(int transactionCount, int userId);
 }

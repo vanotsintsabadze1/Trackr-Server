@@ -7,7 +7,7 @@ namespace Trackr.Application.Services;
 
 internal class TransactionService : ITransactionService
 {
-    private ITransactionRepository _tranRepository;
+    private readonly ITransactionRepository _tranRepository;
 
     public TransactionService(ITransactionRepository tranRepository)
     {
@@ -32,16 +32,40 @@ internal class TransactionService : ITransactionService
         return responseTransactions;
     }
 
-    public async Task<Transaction> DeleteTransaction(int transactionId)
+    public async Task<Transaction> DeleteTransaction(int transactionId, int userId)
     {
-        var doesRecordExist = await _tranRepository.GetTransactionById(transactionId);
-        
-        if (doesRecordExist is null)
+        var transactionFromDB = await _tranRepository.GetTransactionById(transactionId);
+
+        if (transactionFromDB is null)
         {
-            throw new TransactionDoesNotExist("Transaction does not exist with that id", "InvalidTransactionId");
+            throw new InvalidTransactionException("Transaction does not exist with that id", "InvalidTransaction");
+        }
+
+        if (transactionFromDB.UserId != userId)
+        {
+            throw new UserUnauthorizedException("User is not authorized to delete this particular transaction");
         }
 
         var transaction = await _tranRepository.DeleteTransaction(transactionId);
+        return transaction;
+    }
+
+    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, int transactionId, int userId)
+    {
+        var transactionFromDb = await _tranRepository.GetTransactionById(transactionId);
+
+        if (transactionFromDb is null)
+        {
+            throw new InvalidTransactionException("Transaction does not exist with that id", "InvalidTransaction");
+        }
+
+        if (transactionFromDb.UserId != userId)
+        {
+            throw new UserUnauthorizedException("User is not authorized to edit this particular transaction");
+        }
+
+        var transaction = await _tranRepository.EditTransaction(newTransaction, transactionId);
+
         return transaction;
     }
 }

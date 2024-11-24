@@ -78,4 +78,10 @@ public class UserRepository : IUserRepository, IDisposable
         var user = await _con.QueryFirstOrDefaultAsync<User>("SELECT * FROM Users where Email = @email", new { email });
         return user;
     }
+
+    public async Task<User> GetById(int id)
+    {
+        var user = await _con.QueryFirstOrDefaultAsync<User>("SELECT * FROM Users WHERE Id = @id", new { id });
+        return user!;
+    }
 }
