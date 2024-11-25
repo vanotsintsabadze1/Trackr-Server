@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Trackr.Application.Interfaces;
+using Trackr.Infrastructure.Context;
 using Trackr.Infrastructure.Repositories;
 using Trackr.Infrastructure.Utility;
 
@@ -13,6 +14,7 @@ public static class ServiceExtensions
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddScoped<IJwtManager, JwtManager>();
+        services.AddDbContext<TrackrDBContext>();
         return services;
     }
 }
