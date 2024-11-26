@@ -19,9 +19,9 @@ public class UserService : IUserService
         _jwtManager = jwtManager;
     }
 
-    public async Task<UserResponseModel> Register(UserRequestModel user)
+    public async Task<UserResponseModel> Register(UserRequestModel user, CancellationToken cancellationToken)
     {
-        var userFromDb = await _userRepository.GetByEmail(user.Email); 
+        var userFromDb = await _userRepository.GetByEmail(user.Email, cancellationToken); 
 
         if (userFromDb is not null)
         {
@@ -35,9 +35,9 @@ public class UserService : IUserService
         return user.Adapt<UserResponseModel>();
     }
 
-    public async Task<string> Login(UserLoginRequestModel user)
+    public async Task<string> Login(UserLoginRequestModel user, CancellationToken cancellationToken)
     {
-        var userFromDb = await _userRepository.GetByEmail(user.Email);
+        var userFromDb = await _userRepository.GetByEmail(user.Email, cancellationToken);
 
         if (userFromDb is null)
         {

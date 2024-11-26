@@ -1,43 +1,35 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
 using Trackr.Application.Models.Users;
 using Trackr.Domain.Models;
+using Trackr.Infrastructure.Context;
 
 namespace Trackr.Infrastructure.Repositories;
 
-public class UserRepository : IUserRepository, IDisposable
+public class UserRepository : BaseRepository<User>, IUserRepository
 {
-    private readonly SqlConnection _con;
-
-    public UserRepository(IConfiguration configuration)
+    public UserRepository(TrackrDBContext dbContext) : base(dbContext)
     {
-        var conString = configuration.GetConnectionString(name: "DefaultConnection")!;
-        _con = new(conString);
-        _con.Open();
-    }
-    public void Dispose()
-    {
-        _con.Close();
     }
 
     public async Task<UserRequestModel> Register(UserRequestModel user, string hashedPassword)
     {
-        await _con.ExecuteAsync("INSERT INTO Users (Id, Name, Email, Password, Balance) VALUES (@id, @name, @email, @password, @balance)",
-        new
+        var registrationUser = new User()
         {
-            @id = Guid.NewGuid(),
-            name = user.Name,
-            email = user.Email,
-            password = hashedPassword,
-            balance = 0M,
-        });
-
+            Name = user.Name,
+            Email = user.Email,
+            Password = hashedPassword,
+            Balance = 0,
+            CostLimit = 0,
+        };
+        var res = await _dbSet.AddAsync(registrationUser);
+        await _dbContext.SaveChangesAsync();
         return user;
     }
-
     public bool Delete(string id)
     {
         throw new NotImplementedException();
@@ -48,28 +40,27 @@ public class UserRepository : IUserRepository, IDisposable
         throw new NotImplementedException();
     }
 
-    public async Task<List<User>> GetAll()
+    public new async Task<List<User>> GetAll(CancellationToken cancellationToken)
     {
-        IEnumerable<User> users = await _con.QueryAsync<User>("SELECT * FROM Users");
-        var listOfUsers = users.ToList();
-        return listOfUsers;
+        var users = await base.GetAll(cancellationToken);
+        return users;
     }
 
     public async Task<User?> Login(UserLoginRequestModel user)
     {
-        var userFromDb = await GetByEmail(user.Email);
+        var userFromDb = await _dbSet.FirstOrDefaultAsync(u => u.Email == user.Email);
         return userFromDb;
     }
 
-    public async Task<User?> GetByEmail(string email)
+    public async Task<User?> GetByEmail(string email, CancellationToken cancellationToken)
     {
-        var user = await _con.QueryFirstOrDefaultAsync<User>("SELECT * FROM Users where Email = @email", new { email });
+        var user = await _dbSet.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
         return user;
     }
 
-    public async Task<User> GetById(int id)
+    public new async Task<User?> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var user = await _con.QueryFirstOrDefaultAsync<User>("SELECT * FROM Users WHERE Id = @id", new { id });
-        return user!;
+        var res = await base.GetById(id, cancellationToken);
+        return res;
     }
 }
