@@ -5,11 +5,11 @@ namespace Trackr.Application.Interfaces;
 
 public interface IUserRepository
 {
-    Task<List<User>> GetAll();
+    Task<List<User>> GetAll(CancellationToken cancellationToken);
     Task<UserRequestModel> Register(UserRequestModel user, string hashedPassword);
     bool Delete(string id);
     User Edit(string id);
-    Task<User?> GetByEmail(string email);
+    Task<User?> GetByEmail(string email, CancellationToken cancellationToken);
     Task<User?> Login(UserLoginRequestModel user);
-    Task<User> GetById(int id);
+    Task<User?> GetById(Guid id, CancellationToken cancellationToken);
 }

@@ -21,18 +21,18 @@ public class UserController : ControllerBase
 
     [ApiVersion(1)]
     [HttpPost("Register")]
-    public async Task<UserResponseModel> Register([FromBody] UserRequestModel user)
+    public async Task<UserResponseModel> Register([FromBody] UserRequestModel user, CancellationToken cancellationToken)
     {
-        UserResponseModel res = await _userService.Register(user);
+        UserResponseModel res = await _userService.Register(user, cancellationToken);
         Log.Information("User has registered - {name} - {email}", user.Name, user.Email);
         return res;
     }
 
     [ApiVersion(1)]
     [HttpPost("Login")]
-    public async Task<string> Login([FromBody] UserLoginRequestModel user)
+    public async Task<string> Login([FromBody] UserLoginRequestModel user, CancellationToken cancellationToken)
     {
-        string res = await _userService.Login(user);
+        string res = await _userService.Login(user, cancellationToken);
         return res;
     }
 }
