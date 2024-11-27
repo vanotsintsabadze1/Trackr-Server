@@ -1,40 +1,47 @@
-﻿using Trackr.Application.Exceptions;
+﻿using Mapster;
+using Trackr.API.Infrastructure.Models;
+using Trackr.Application.Exceptions;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models.Transactions;
 using Trackr.Domain.Models;
 
 namespace Trackr.Application.Services;
 
-internal class TransactionService : ITransactionService
+public class TransactionService : ITransactionService
 {
     private readonly ITransactionRepository _tranRepository;
+    private readonly IUserService _userService;
 
-    public TransactionService(ITransactionRepository tranRepository)
+    public TransactionService(ITransactionRepository tranRepository, IUserService userService)
     {
         _tranRepository = tranRepository;
+        _userService = userService;
     }
 
-    public async Task<List<Transaction>> GetUserTransactions(string userId, int count, int page)
+    public async Task<List<Transaction>> GetUserTransactions(string userId, int count, int page, CancellationToken cancellationToken)
     {
-        List<Transaction> transactions = await _tranRepository.GetUserTransactions(userId, count, page);
+        var userGuidId = new Guid(userId);
+        var transactions = await _tranRepository.GetAll(userGuidId, count, page, cancellationToken);
         return transactions;
     }
 
-    public async Task<Transaction> AddTransaction(TransactionRequestModel transaction, string userId)
+    public async Task<Transaction> AddTransaction(TransactionRequestModel transaction, string userId, CancellationToken cancellationToken)
     {
-        var responseTransaction = await _tranRepository.AddTransaction(transaction, userId);
+        var guidId = new Guid(userId);
+        var responseTransaction = await _tranRepository.Add(transaction, guidId, cancellationToken: cancellationToken);
         return responseTransaction;
     }
 
-    public async Task<List<Transaction>> GetLatestTransactions(int transactionCount, string userId)
+    public async Task<List<Transaction>> GetLatestTransactions(int transactionCount, string userId, CancellationToken cancellationToken)
     {
-        var responseTransactions = await _tranRepository.GetLatestTransaction(transactionCount, userId);
+        var guidId = new Guid(userId);
+        var responseTransactions = await _tranRepository.GetLatestTransaction(transactionCount, guidId, cancellationToken);
         return responseTransactions;
     }
 
-    public async Task<Transaction> DeleteTransaction(string transactionId, string userId)
+    public async Task<Transaction> DeleteTransaction(Guid transactionId, string userId, CancellationToken cancellationToken)
     {
-        var transactionFromDB = await _tranRepository.GetTransactionById(transactionId);
+        var transactionFromDB = await _tranRepository.GetById(transactionId, cancellationToken);
 
         if (transactionFromDB is null)
         {
@@ -45,14 +52,14 @@ internal class TransactionService : ITransactionService
         {
             throw new UserUnauthorizedException("User is not authorized to delete this particular transaction");
         }
-
-        var transaction = await _tranRepository.DeleteTransaction(transactionId);
+        
+        var transaction = await _tranRepository.Remove(transactionFromDB, cancellationToken);
         return transaction;
     }
 
-    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, string transactionId, string userId)
+    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, Guid transactionId, string userId, CancellationToken cancellationToken)
     {
-        var transactionFromDb = await _tranRepository.GetTransactionById(transactionId);
+        var transactionFromDb = await _tranRepository.GetById(transactionId, cancellationToken);
 
         if (transactionFromDb is null)
         {
@@ -64,8 +71,24 @@ internal class TransactionService : ITransactionService
             throw new UserUnauthorizedException("User is not authorized to edit this particular transaction");
         }
 
-        var transaction = await _tranRepository.EditTransaction(newTransaction, transactionId);
+        var mappedTransaction = newTransaction.Adapt(transactionFromDb);
+        
+        var transaction = await _tranRepository.Update(mappedTransaction, cancellationToken: cancellationToken);
 
         return transaction;
+    }
+
+    public async Task<MoneySpentModel> GetMoneySpent(string userId, CancellationToken cancellationToken)
+    {
+        Guid userGuidId = new Guid(userId);
+        var user = await _userService.GetCurrentUser(userId, cancellationToken);
+        var transactions = await _tranRepository.GetAll(t => t.UserId == userGuidId && t.TranDate.Month == DateTime.UtcNow.Month, cancellationToken);
+        var totalSpent = transactions.Aggregate(0m, (sum, t) => sum + t.Amount);
+
+        return new MoneySpentModel()
+        {
+            MoneySpent = totalSpent,
+            CostLimit = user.CostLimit,
+        };
     }
 }

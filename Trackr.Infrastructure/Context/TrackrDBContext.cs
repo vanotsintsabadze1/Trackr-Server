@@ -28,6 +28,7 @@ public class TrackrDBContext : DbContext
     }
 }
 
+/*
 public class TrackrDBContextFactory : IDesignTimeDbContextFactory<TrackrDBContext>
 {
     public TrackrDBContext CreateDbContext(string[] args)
@@ -39,3 +40,4 @@ public class TrackrDBContextFactory : IDesignTimeDbContextFactory<TrackrDBContex
         return new TrackrDBContext(configuration, optionsBuilder.Options);
     }
 }
+*/
