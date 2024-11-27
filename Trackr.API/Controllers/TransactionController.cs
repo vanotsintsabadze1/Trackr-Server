@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Trackr.API.Infrastructure.Helpers;
+using Trackr.API.Infrastructure.Models;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models.Transactions;
 using Trackr.Domain.Models;
 
 namespace Trackr.API.Controllers;
-
 
 [ApiController]
 [ApiVersion(1)]
@@ -16,65 +16,69 @@ namespace Trackr.API.Controllers;
 public class TransactionController : ControllerBase
 {
     private readonly ITransactionService _tranService;
-    private readonly HttpContext _ctx;
 
-    public TransactionController(ITransactionService tranService, IHttpContextAccessor ctx)
+    public TransactionController(ITransactionService tranService)
     {
         _tranService = tranService;
-        _ctx = ctx.HttpContext!;
     }
 
     [Authorize]
-    [ApiVersion(1)]
     [HttpGet("GetUserTransactions")]
-    public async Task<List<Transaction>> GetUserTransactions(int count, int page)
+    public async Task<List<Transaction>> GetUserTransactions(int count, int page, CancellationToken cancellationToken)
     {
-        var id = CredentialRetriever.GetUserId(_ctx);
-        var transactions = await _tranService.GetUserTransactions(id, count, page);
+        var id = CredentialRetriever.GetUserId(HttpContext);
+        var transactions = await _tranService.GetUserTransactions(id, count, page, cancellationToken);
         return transactions;
     }
 
     [Authorize]
-    [ApiVersion(1)]
     [HttpPost("AddTransaction")]
     [Produces("application/json")]
-    public async Task<Transaction> Add(TransactionRequestModel transaction)
+    public async Task<Transaction> Add(TransactionRequestModel transaction, CancellationToken cancellationToken)
     {
-        var id = CredentialRetriever.GetUserId(_ctx);
-        var responseTransaction = await _tranService.AddTransaction(transaction, id);
+        var id = CredentialRetriever.GetUserId(HttpContext);
+        var responseTransaction = await _tranService.AddTransaction(transaction, id, cancellationToken);
         return responseTransaction;
     }
 
     [Authorize]
-    [ApiVersion(1)]
     [HttpGet("GetLatestTransaction")]
     [Produces("application/json")]
-    public async Task<List<Transaction>> GetLatestTransaction(int transactionCount)
+    public async Task<List<Transaction>> GetLatestTransaction(int transactionCount, CancellationToken cancellationToken)
     {
-        var id = CredentialRetriever.GetUserId(_ctx);
-        var latestTransactions = await _tranService.GetLatestTransactions(transactionCount, id);
+        var id = CredentialRetriever.GetUserId(HttpContext);
+        var latestTransactions = await _tranService.GetLatestTransactions(transactionCount, id, cancellationToken);
         return latestTransactions;
     }
 
     [Authorize]
-    [ApiVersion(1)]
     [HttpDelete("DeleteTransaction/{transactionId}")]
     [Produces("application/json")]
-    public async Task<Transaction> DeleteTransaction(string transactionId)
+    public async Task<Transaction> DeleteTransaction(Guid transactionId, CancellationToken cancellationToken)
     {
-        var id = CredentialRetriever.GetUserId(_ctx);
-        var transaction = await _tranService.DeleteTransaction(transactionId, id);
+        var id = CredentialRetriever.GetUserId(HttpContext);
+        var transaction = await _tranService.DeleteTransaction(transactionId, id, cancellationToken);
         return transaction;
     }
 
     [Authorize]
-    [ApiVersion(1)]
     [HttpPut("EditTransaction/{transactionId}")]
     [Produces("application/json")]
-    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, string transactionId)
+    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, Guid transactionId
+, CancellationToken cancellationToken)
     {
-        var id = CredentialRetriever.GetUserId(_ctx);
-        var transaction = await _tranService.EditTransaction(newTransaction, transactionId, id);
+        var id = CredentialRetriever.GetUserId(HttpContext);
+        var transaction = await _tranService.EditTransaction(newTransaction, transactionId, id, cancellationToken);
         return transaction;
+    }
+
+    [Authorize]
+    [HttpGet("GetMoneySpent")]
+    [Produces("application/json")]
+    public async Task<MoneySpentModel> GetMoneySpent(CancellationToken cancellationToken)
+    {
+        var id = CredentialRetriever.GetUserId(HttpContext);
+        var moneySpent = await _tranService.GetMoneySpent(id, cancellationToken);
+        return moneySpent;
     }
 }

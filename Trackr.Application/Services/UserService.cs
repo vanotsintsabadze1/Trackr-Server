@@ -41,18 +41,31 @@ public class UserService : IUserService
 
         if (userFromDb is null)
         {
-            throw new UserInvalidCredentialsException("The user with such email does not exist", "InvalidEmail");
+            throw new InvalidUserException("The user with such email does not exist", "InvalidEmail");
         }
 
         var matches = _passwordHasher.Verify(user.Password, userFromDb.Password);
         
         if (!matches)
         {
-            throw new UserInvalidCredentialsException("The password is incorrect for the given user", "InvalidPassword");
+            throw new InvalidUserException("The password is incorrect for the given user", "InvalidPassword");
         }
 
         var token = await _jwtManager.Create(userFromDb);
 
         return token;
+    }
+
+    public async Task<UserResponseModel> GetCurrentUser(string userId, CancellationToken cancellationToken)
+    {
+        Guid userGuidId = new Guid(userId);
+        var user = await _userRepository.GetById(userGuidId, cancellationToken);
+        
+        if (user is null)
+        {
+            throw new InvalidUserException("User does not exist", "UserDoesNotExist");
+        }
+
+        return user.Adapt<UserResponseModel>();
     }
 }

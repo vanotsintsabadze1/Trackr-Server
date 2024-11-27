@@ -1,5 +1,5 @@
-﻿using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using Trackr.Domain.Interfaces;
 
 namespace Trackr.Infrastructure.Repositories;
@@ -33,13 +33,18 @@ public class BaseRepository<T> where T : IEntity
         return res;
     }
 
+    public async Task<List<T>> GetAll(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+    {
+        var transactions = await _dbSet.Where(predicate).ToListAsync();
+        return transactions;
+    }
+
     public async Task<T> Remove(T entity, CancellationToken cancellationToken)
     {
         if (entity is null)
         {
             throw new ArgumentNullException(nameof(entity));
         }
-
         
         var res = _dbSet.Remove(entity);
         await _dbContext.SaveChangesAsync(cancellationToken);

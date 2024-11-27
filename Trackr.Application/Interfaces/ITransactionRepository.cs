@@ -1,13 +1,15 @@
-﻿using Trackr.Application.Models.Transactions;
+﻿using System.Linq.Expressions;
+using Trackr.Application.Models.Transactions;
 using Trackr.Domain.Models;
 
 namespace Trackr.Application.Interfaces;
-public interface ITransactionRepository
+public interface ITransactionRepository 
 {
-    Task<List<Transaction>> GetUserTransactions(string userId, int count, int page);
-    Task<Transaction?> GetTransactionById(string transactionId);
-    Task<Transaction> AddTransaction(TransactionRequestModel transaction, string userId);
-    Task<Transaction> DeleteTransaction(string transactionId);
-    Task<Transaction> EditTransaction(TransactionRequestModel transaction, string transactionId);
-    Task<List<Transaction>> GetLatestTransaction(int transactionCount, string userId);
+    Task<List<Transaction>> GetAll(Guid userId, int count, int page, CancellationToken cancellationToken);
+    Task<List<Transaction>> GetAll(Expression<Func<Transaction, bool>> predicate, CancellationToken cancellationToken);
+    Task<Transaction> Add(TransactionRequestModel transaction, Guid userId, CancellationToken cancellationToken);
+    Task<Transaction> Remove(Transaction transaction, CancellationToken cancellationToken);
+    Task<Transaction> Update(Transaction transaction, CancellationToken cancellationToken);
+    Task<List<Transaction>> GetLatestTransaction(int transactionCount, Guid userId, CancellationToken cancellationToken);
+    Task<Transaction?> GetById(Guid transactionId, CancellationToken cancellationToken);
 }

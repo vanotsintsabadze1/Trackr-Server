@@ -48,7 +48,7 @@ public class APIError : ProblemDetails
         Status = (int)HttpStatusCode.Conflict;
     }
 
-    private void HandleException(UserInvalidCredentialsException ex)
+    private void HandleException(InvalidUserException ex)
     {
         Code = ex.Code;
         Title = ex.Message;

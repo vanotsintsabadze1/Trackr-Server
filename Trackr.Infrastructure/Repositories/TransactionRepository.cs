@@ -1,93 +1,74 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models.Transactions;
-using Dapper;
 using Trackr.Domain.Models;
+using Trackr.Infrastructure.Context;
 
 namespace Trackr.Infrastructure.Repositories;
 
-public class TransactionRepository : ITransactionRepository, IDisposable
+public class TransactionRepository : BaseRepository<Transaction>, ITransactionRepository
 {
-    private readonly SqlConnection _con;
+    public TransactionRepository(TrackrDBContext dbContext) : base(dbContext)
+    { }
 
-    public TransactionRepository(IConfiguration configuration)
+    public async Task<Transaction> Add(TransactionRequestModel transaction, Guid userId,
+        CancellationToken cancellationToken)
     {
-        var conString = configuration.GetConnectionString(name: "DefaultConnection")!;
-        _con = new(conString);
-        _con.Open();
-    }
-    public void Dispose()
-    {
-        _con.Close();
-    }
-
-    public async Task<Transaction> AddTransaction(TransactionRequestModel transaction, string userId)
-    {
-        var newTransaction = await _con.QuerySingleOrDefaultAsync<Transaction>("INSERT INTO Transactions (Id, UserId, Type, Title, Description, Amount) OUTPUT INSERTED.* VALUES (@id, @userId, @type, @title, @description, @amount)",
-            new
-            {
-                id = Guid.NewGuid(),
-                userId,
-                type = transaction.Type,
-                title = transaction.Title,
-                description = transaction.Description,
-                amount = transaction.Amount,
-            });
+        var newTransaction = new Transaction()
+        {
+            UserId = userId,
+            Type = transaction.Type,
+            Title = transaction.Title,
+            Description = transaction.Description,
+            Amount = transaction.Amount,
+        };
+        await base.Add(newTransaction, cancellationToken);
         return newTransaction!;
     }
 
-    public async Task<Transaction> DeleteTransaction(string transactionId)
+    public new async Task<Transaction> Update(Transaction newTransaction,
+        CancellationToken cancellationToken)
     {
-        var transaction = await _con.QueryFirstOrDefaultAsync<Transaction>("DELETE FROM Transactions OUTPUT DELETED.* WHERE Id = @transactionid", new { transactionId });
-        return transaction!;
+        await base.Update(newTransaction, cancellationToken);
+        return newTransaction;
     }
 
-    public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, string transactionId)
+    public new async Task<Transaction?> GetById(Guid transactionId, CancellationToken cancellationToken)
     {
-        var transaction = await _con.QueryFirstOrDefaultAsync<Transaction>("UPDATE Transactions SET Title = @title, Description = @description, Type = @type, Amount = @amount OUTPUT INSERTED.* WHERE Id = @id", new
-        {
-            title = newTransaction.Title,
-            description = newTransaction.Description,
-            type = newTransaction.Type,
-            amount = newTransaction.Amount,
-            id = transactionId,
-        });
-
-        return transaction!;
-    }
-
-    public Task<Transaction?> GetTransactionById(string transactionId)
-    {
-        var transaction = _con.QueryFirstOrDefaultAsync<Transaction>("SELECT * FROM Transactions WHERE Id = @transactionId", new { transactionId });
+        var transaction = await base.GetById(transactionId, cancellationToken: cancellationToken);
         return transaction;
     }
 
-    public async Task<List<Transaction>> GetUserTransactions(string userId, int count, int page)
+    public async Task<List<Transaction>> GetAll(Guid userId, int count, int page, CancellationToken cancellationToken)
     {
-
         if (count == 0 || page == 0)
         {
             return new List<Transaction>();
         }
 
         var offset = (page - 1) * count;
-        var transactions = await _con.QueryAsync<Transaction>(
-            "SELECT * FROM Transactions WHERE UserId = @userId ORDER BY TranDate DESC OFFSET @offset ROWS FETCH NEXT @count ROWS ONLY",
-            new { userId, offset, count }
-        );
+        var transactions = await base.GetAll(t => t.UserId == userId, cancellationToken: cancellationToken);
 
-        return transactions.ToList() ?? new List<Transaction>();
+        if (transactions is not null)
+        {
+            return transactions.Skip(offset).Take(count).ToList();
+        }
+
+        return new List<Transaction>();
     }
 
-    public async Task<List<Transaction>> GetLatestTransaction(int transactionCount, string userId)
+    public async Task<List<Transaction>> GetLatestTransaction(int transactionCount, Guid userId, CancellationToken cancellationToken)
     {
-        var transactions = await _con.QueryAsync<Transaction>("SELECT TOP (@transactionCount) * FROM Transactions WHERE UserId = @userId ORDER BY TranDate DESC",
-            new
-            {
-                transactionCount,
-                userId
-            });
-        return transactions.ToList() ?? new List<Transaction>();
+        var transactions = await _dbSet.Where(t => t.UserId == userId)
+            .OrderByDescending(t => t.TranDate)
+            .Take(transactionCount)
+            .ToListAsync(cancellationToken: cancellationToken);
+        return transactions;
+    }
+
+    public new async Task<Transaction> Remove(Transaction transaction, CancellationToken cancellationToken)
+    {
+        var deletedTransaction = await base.Remove(transaction, cancellationToken);
+        return deletedTransaction;
     }
 }
