@@ -3,6 +3,7 @@ using Trackr.Application.Exceptions;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
 using Trackr.Application.Models.Users;
+using Trackr.Domain.Models;
 
 namespace Trackr.Application.Services;
 
@@ -61,6 +62,19 @@ public class UserService : IUserService
         Guid userGuidId = new Guid(userId);
         var user = await _userRepository.GetById(userGuidId, cancellationToken);
         
+        if (user is null)
+        {
+            throw new InvalidUserException("User does not exist", "UserDoesNotExist");
+        }
+
+        return user.Adapt<UserResponseModel>();
+    }
+
+    public async Task<UserResponseModel> UpdateCostLimit(decimal costLimit, string id, CancellationToken cancellationToken)
+    {
+        var userGuidId = new Guid(id);
+        var user = await _userRepository.UpdateCostLimit(costLimit, userGuidId, cancellationToken);
+
         if (user is null)
         {
             throw new InvalidUserException("User does not exist", "UserDoesNotExist");
