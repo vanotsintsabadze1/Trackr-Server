@@ -1,7 +1,4 @@
-﻿using Dapper;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
 using Trackr.Application.Models.Users;
@@ -35,9 +32,23 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         throw new NotImplementedException();
     }
 
-    public User Edit(string id)
+    public new async Task<User?> Update(User user, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var updatedUser = await base.Update(user, cancellationToken);
+        return updatedUser;
+
+    }
+
+    public async Task<User?> UpdateCostLimit(decimal costLimit, Guid id, CancellationToken cancellationToken)
+    {
+        var user = await base.GetById(id, cancellationToken);
+        if (user is not null)
+        {
+            user.CostLimit = costLimit;
+            await base.Update(user, cancellationToken);
+        }
+        return user;
+
     }
 
     public new async Task<List<User>> GetAll(CancellationToken cancellationToken)

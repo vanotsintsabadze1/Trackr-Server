@@ -25,8 +25,4 @@
         <ProjectReference Include="..\Trackr.Infrastructure\Trackr.Infrastructure.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Infrastructure\Models\" />
-    </ItemGroup>
-
 </Project>
