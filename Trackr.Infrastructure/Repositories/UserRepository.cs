@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
+using Trackr.Application.Models.Transactions;
 using Trackr.Application.Models.Users;
 using Trackr.Domain.Models;
 using Trackr.Infrastructure.Context;
@@ -73,5 +74,16 @@ public class UserRepository : BaseRepository<User>, IUserRepository
     {
         var res = await base.GetById(id, cancellationToken);
         return res;
+    }
+
+    public async Task<User?> UpdateBalance(Guid id, BalanceModel newBalance, CancellationToken cancellationToken)
+    {
+        var user = await base.GetById(id, cancellationToken);
+        if (user is not null)
+        {
+            user.Balance = newBalance.Balance;
+            await base.Update(user, cancellationToken);
+        };
+        return user;
     }
 }

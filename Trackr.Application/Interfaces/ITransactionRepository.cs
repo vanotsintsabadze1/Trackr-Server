@@ -12,4 +12,5 @@ public interface ITransactionRepository
     Task<Transaction> Update(Transaction transaction, CancellationToken cancellationToken);
     Task<List<Transaction>> GetLatestTransaction(int transactionCount, Guid userId, CancellationToken cancellationToken);
     Task<Transaction?> GetById(Guid transactionId, CancellationToken cancellationToken);
+    Task<CurrentAndPreviousMonthExpensesModel> GetCurrentAndPreviousMonthExpenses(Guid id, CancellationToken cancellationToken);
 }
