@@ -81,4 +81,14 @@ public class TransactionController : ControllerBase
         var moneySpent = await _tranService.GetMoneySpent(id, cancellationToken);
         return moneySpent;
     }
+
+    [Authorize]
+    [HttpGet("GetPreviousAndCurrentMonthExpenses")]
+    [Produces("application/json")]
+    public async Task<CurrentAndPreviousMonthExpensesModel> GetCurrentAndPreviousMonthExpenses(CancellationToken cancellationToken)
+    {
+        var id = CredentialRetriever.GetUserId(HttpContext);
+        var currentAndPreviousMonthExpenses = await _tranService.GetCurrentAndPreviousMonthExpenses(id, cancellationToken);
+        return currentAndPreviousMonthExpenses;
+    }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Trackr.Domain.Interfaces;
 
-public class IEntity
+public interface IEntity
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
 }

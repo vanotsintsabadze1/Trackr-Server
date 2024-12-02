@@ -91,4 +91,12 @@ public class TransactionService : ITransactionService
             CostLimit = user.CostLimit,
         };
     }
+
+    public async Task<CurrentAndPreviousMonthExpensesModel> GetCurrentAndPreviousMonthExpenses(string id, CancellationToken cancellationToken)
+    {
+        Guid userGuidId = new Guid(id);
+        var currentAndPreviousMonthExpenses = await _tranRepository.GetCurrentAndPreviousMonthExpenses(userGuidId, cancellationToken);
+
+        return currentAndPreviousMonthExpenses;
+    }
 }

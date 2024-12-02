@@ -2,6 +2,7 @@
 using Trackr.Application.Exceptions;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
+using Trackr.Application.Models.Transactions;
 using Trackr.Application.Models.Users;
 using Trackr.Domain.Models;
 
@@ -81,5 +82,23 @@ public class UserService : IUserService
         }
 
         return user.Adapt<UserResponseModel>();
+    }
+
+    public async Task<BalanceModel> GetBalance(string id, CancellationToken cancellationToken)
+    {
+        var userGuidId = new Guid(id);
+        var user = await _userRepository.GetById(userGuidId, cancellationToken);
+        return user.Adapt<BalanceModel>();
+    }
+
+    public async Task<UserResponseModel> UpdateBalance(string id, BalanceModel newBalance, CancellationToken cancellationToken)
+    {
+        var userGuidId = new Guid(id);
+        var updatedUser = await _userRepository.UpdateBalance(userGuidId, newBalance, cancellationToken);
+        if (updatedUser is null)
+        {
+            throw new InvalidUserException("User does not exist", "UserDoesNotExist");
+        }
+        return updatedUser.Adapt<UserResponseModel>();
     }
 }

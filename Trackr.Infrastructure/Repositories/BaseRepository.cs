@@ -4,7 +4,7 @@ using Trackr.Domain.Interfaces;
 
 namespace Trackr.Infrastructure.Repositories;
 
-public class BaseRepository<T> where T : IEntity
+public class BaseRepository<T> where T : class, IEntity
 {
     public readonly DbContext _dbContext;
     public readonly DbSet<T> _dbSet;

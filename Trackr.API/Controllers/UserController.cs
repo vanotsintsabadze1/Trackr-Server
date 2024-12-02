@@ -6,6 +6,7 @@ using Trackr.API.Infrastructure.Helpers;
 using Trackr.API.Infrastructure.Models;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
+using Trackr.Application.Models.Transactions;
 using Trackr.Application.Models.Users;
 using Trackr.Domain.Models;
 
@@ -45,5 +46,23 @@ public class UserController : ControllerBase
         var id = CredentialRetriever.GetUserId(HttpContext);
         var user = await _userService.UpdateCostLimit(costLimit.CostLimit, id, cancellationToken);
         return user;
+    }
+
+    [Authorize]
+    [HttpGet("GetBalance")]
+    public async Task<BalanceModel> GetBalance(CancellationToken cancellationToken)
+    {
+        var id = CredentialRetriever.GetUserId(HttpContext);
+        var balance = await _userService.GetBalance(id, cancellationToken);
+        return balance;
+    }
+
+    [Authorize]
+    [HttpPatch("UpdateBalance")]
+    public async Task<UserResponseModel> UpdateBalance(BalanceModel newBalance, CancellationToken cancellationToken)
+    {
+        var id = CredentialRetriever.GetUserId(HttpContext);
+        var response = await _userService.UpdateBalance(id, newBalance, cancellationToken);
+        return response;
     }
 }

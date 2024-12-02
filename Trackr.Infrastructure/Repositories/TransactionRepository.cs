@@ -71,4 +71,19 @@ public class TransactionRepository : BaseRepository<Transaction>, ITransactionRe
         var deletedTransaction = await base.Remove(transaction, cancellationToken);
         return deletedTransaction;
     }
+
+    public async Task<CurrentAndPreviousMonthExpensesModel> GetCurrentAndPreviousMonthExpenses(Guid id, CancellationToken cancellationToken)
+    {
+        var previousMonthTransactions = await base.GetAll(t => t.TranDate.Month == DateTime.UtcNow.AddMonths(-1).Month && t.UserId == id, cancellationToken);
+        var previousMonthExpenses = previousMonthTransactions.Aggregate(0m, (sum, t) => sum + t.Amount);
+
+        var currentMonthTransactions = await base.GetAll(t => t.TranDate.Month == DateTime.UtcNow.Month && t.UserId == id, cancellationToken);
+        var currentMonthExpenses = currentMonthTransactions.Aggregate(0m, (sum, t) => sum + t.Amount);
+
+        return new CurrentAndPreviousMonthExpensesModel()
+        {
+            PreviousMonth = previousMonthExpenses,
+            CurrentMonth = currentMonthExpenses
+        };
+    }
 }
