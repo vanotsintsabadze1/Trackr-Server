@@ -8,7 +8,6 @@ using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
 using Trackr.Application.Models.Transactions;
 using Trackr.Application.Models.Users;
-using Trackr.Domain.Models;
 
 namespace Trackr.API.Controllers;
 
