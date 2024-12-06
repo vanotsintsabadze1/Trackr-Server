@@ -32,9 +32,9 @@ public class UserService : IUserService
 
         var hashedPassword = _passwordHasher.Hash(user.Password);
 
-        await _userRepository.Register(user, hashedPassword);
+        var createdUser = await _userRepository.Register(user, hashedPassword);
 
-        return user.Adapt<UserResponseModel>();
+        return createdUser.Adapt<UserResponseModel>();
     }
 
     public async Task<string> Login(UserLoginRequestModel user, CancellationToken cancellationToken)
