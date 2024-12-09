@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Trackr.Domain.Models;
 
@@ -27,17 +26,3 @@ public class TrackrDBContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TrackrDBContext).Assembly);
     }
 }
-
-/*
-public class TrackrDBContextFactory : IDesignTimeDbContextFactory<TrackrDBContext>
-{
-    public TrackrDBContext CreateDbContext(string[] args)
-    {
-        var configuration = new ConfigurationBuilder().AddUserSecrets<TrackrDBContext>().Build();
-        var optionsBuilder = new DbContextOptionsBuilder<TrackrDBContext>();
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
-        optionsBuilder.UseSqlServer(connectionString);
-        return new TrackrDBContext(configuration, optionsBuilder.Options);
-    }
-}
-*/
