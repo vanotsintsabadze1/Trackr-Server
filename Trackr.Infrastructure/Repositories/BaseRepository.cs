@@ -66,12 +66,6 @@ public class BaseRepository<T> where T : class, IEntity
     public async Task<T?> GetById(Guid id, CancellationToken cancellationToken)
     {
         var res = await _dbSet.FindAsync(id, cancellationToken);
-        
-        if (res is null)
-        {
-            throw new Exception("Such entity was not found");
-        }
-        
         return res; 
     }
 }
