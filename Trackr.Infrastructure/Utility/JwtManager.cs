@@ -85,11 +85,6 @@ public class JwtManager : IJwtManager
         var ci = new ClaimsIdentity(cl);
 
         return ci;
-
     }
 
-    public bool Verify(string token)
-    {
-
-    }
 }

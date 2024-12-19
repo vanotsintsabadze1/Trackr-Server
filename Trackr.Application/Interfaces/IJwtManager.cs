@@ -5,4 +5,5 @@ namespace Trackr.Application.Interfaces;
 public interface IJwtManager
 {
     Task<string> CreateJwtForUser(User user);
+    Task<string> CreateJwtForEmailVerification(string email);
 }
