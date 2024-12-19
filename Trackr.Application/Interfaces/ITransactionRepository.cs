@@ -13,4 +13,5 @@ public interface ITransactionRepository
     Task<List<Transaction>> GetLatestTransaction(int transactionCount, Guid userId, CancellationToken cancellationToken);
     Task<Transaction?> GetById(Guid transactionId, CancellationToken cancellationToken);
     Task<CurrentAndPreviousMonthExpensesModel> GetCurrentAndPreviousMonthExpenses(Guid id, CancellationToken cancellationToken);
+    Task<SortedDictionary<int, decimal>> GetExpensesForTheWholeYear(Guid id, CancellationToken cancellationToken);
 }
