@@ -16,7 +16,7 @@ public class JwtManager : IJwtManager
         _configuration = configuration;
     }
 
-    public Task<string> Create(User user)
+    public Task<string> CreateJwtForUser(User user)
     {
         var handler = new JwtSecurityTokenHandler();
 
@@ -39,6 +39,28 @@ public class JwtManager : IJwtManager
         return Task.Run(() => handler.WriteToken(token));
     }
 
+    public Task<string> CreateJwtForEmailVerification(string email)
+    {
+        var handler = new JwtSecurityTokenHandler();
+
+        var key = _configuration["Jwt:SecretKey"]!;
+        var privateKey = Encoding.UTF8.GetBytes(key);
+
+        var ssk = new SymmetricSecurityKey(privateKey);
+
+        var credentials = new SigningCredentials(ssk, SecurityAlgorithms.HmacSha256);
+
+        var tokenDescriptor = new SecurityTokenDescriptor()
+        {
+            SigningCredentials = credentials,
+            Subject = GenerateClaimsForEmailConfirmation(email),
+        };
+
+        var token = handler.CreateToken(tokenDescriptor);
+
+        return Task.Run(() => handler.WriteToken(token));
+    }
+
     private ClaimsIdentity GenerateClaims(User user)
     {
         var cl = new List<Claim>()
@@ -51,5 +73,23 @@ public class JwtManager : IJwtManager
         var ci = new ClaimsIdentity(cl);
 
         return ci;
+    }
+
+    private ClaimsIdentity GenerateClaimsForEmailConfirmation(string email)
+    {
+        var cl = new List<Claim>()
+        {
+            new Claim(ClaimTypes.Email, email)
+        };
+
+        var ci = new ClaimsIdentity(cl);
+
+        return ci;
+
+    }
+
+    public bool Verify(string token)
+    {
+
     }
 }

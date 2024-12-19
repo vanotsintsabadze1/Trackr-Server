@@ -34,7 +34,7 @@ public class UserControllerTest
             .Generate();
         _userRepositoryMock.Setup(repo => repo.GetByEmail(loginModel.Email, It.IsAny<CancellationToken>())).ReturnsAsync(model);
         _passwordHasherMock.Setup(hasher => hasher.Verify(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
-        _jwtManagerMock.Setup(manager => manager.Create(model)).ReturnsAsync("SomePassword143**");
+        _jwtManagerMock.Setup(manager => manager.CreateJwtForUser(model)).ReturnsAsync("SomePassword143**");
 
         // Act
         var response = await userService.Login(loginModel, It.IsAny<CancellationToken>());
