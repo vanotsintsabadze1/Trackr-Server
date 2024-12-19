@@ -45,12 +45,12 @@ public class TransactionService : ITransactionService
 
         if (transactionFromDB is null)
         {
-            throw new InvalidTransactionException("Transaction does not exist with that id", "InvalidTransaction");
+            throw new NotFoundException("Transaction does not exist with that id", "InvalidTransaction");
         }
 
         if (transactionFromDB.UserId.ToString() != userId)
         {
-            throw new UserUnauthorizedException("User is not authorized to delete this particular transaction");
+            throw new UnauthorizedException("User is not authorized to delete this particular transaction");
         }
         
         var transaction = await _tranRepository.Remove(transactionFromDB, cancellationToken);
@@ -63,12 +63,12 @@ public class TransactionService : ITransactionService
 
         if (transactionFromDb is null)
         {
-            throw new InvalidTransactionException("Transaction does not exist with that id", "InvalidTransaction");
+            throw new NotFoundException("Transaction does not exist with that id", "InvalidTransaction");
         }
 
         if (transactionFromDb.UserId.ToString() != userId)
         {
-            throw new UserUnauthorizedException("User is not authorized to edit this particular transaction");
+            throw new UnauthorizedException("User is not authorized to edit this particular transaction");
         }
 
         var mappedTransaction = newTransaction.Adapt(transactionFromDb);

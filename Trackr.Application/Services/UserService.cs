@@ -4,7 +4,6 @@ using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
 using Trackr.Application.Models.Transactions;
 using Trackr.Application.Models.Users;
-using Trackr.Domain.Models;
 
 namespace Trackr.Application.Services;
 
@@ -27,7 +26,7 @@ public class UserService : IUserService
 
         if (userFromDb is not null)
         {
-            throw new UserAlreadyExistsException("User already exists with this email address");
+            throw new ConflictException("User already exists with this email address", "EmailIsTaken");
         }
 
         var hashedPassword = _passwordHasher.Hash(user.Password);
@@ -43,14 +42,14 @@ public class UserService : IUserService
 
         if (userFromDb is null)
         {
-            throw new InvalidUserException("The user with such email does not exist", "InvalidEmail");
+            throw new NotFoundException("The user with such email does not exist", "InvalidEmail");
         }
 
         var matches = _passwordHasher.Verify(user.Password, userFromDb.Password);
         
         if (!matches)
         {
-            throw new InvalidUserException("The password is incorrect for the given user", "InvalidPassword");
+            throw new BadRequestException("The password is incorrect for the given user", "InvalidPassword");
         }
 
         var token = await _jwtManager.Create(userFromDb);
@@ -65,7 +64,7 @@ public class UserService : IUserService
         
         if (user is null)
         {
-            throw new InvalidUserException("User does not exist", "UserDoesNotExist");
+            throw new NotFoundException("User does not exist", "UserDoesNotExist");
         }
 
         return user.Adapt<UserResponseModel>();
@@ -78,7 +77,7 @@ public class UserService : IUserService
 
         if (user is null)
         {
-            throw new InvalidUserException("User does not exist", "UserDoesNotExist");
+            throw new NotFoundException("User does not exist", "UserDoesNotExist");
         }
 
         return user.Adapt<UserResponseModel>();
@@ -97,7 +96,7 @@ public class UserService : IUserService
         var updatedUser = await _userRepository.UpdateBalance(userGuidId, newBalance, cancellationToken);
         if (updatedUser is null)
         {
-            throw new InvalidUserException("User does not exist", "UserDoesNotExist");
+            throw new NotFoundException("User does not exist", "UserDoesNotExist");
         }
         return updatedUser.Adapt<UserResponseModel>();
     }
