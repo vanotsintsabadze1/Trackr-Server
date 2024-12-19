@@ -91,4 +91,14 @@ public class TransactionController : ControllerBase
         var currentAndPreviousMonthExpenses = await _tranService.GetCurrentAndPreviousMonthExpenses(id, cancellationToken);
         return currentAndPreviousMonthExpenses;
     }
+
+    [Authorize]
+    [HttpGet("GetExpensesForTheWholeYear")]
+    [Produces("application/json")]
+    public async Task<SortedDictionary<int, decimal>> GetExpensesOfTheWholeYear(CancellationToken cancellationToken)
+    {
+        var id = CredentialRetriever.GetUserId(HttpContext);
+        var expensesOfTheWholeYear = await _tranService.GetExpensesForTheWholeYear(id, cancellationToken);
+        return expensesOfTheWholeYear;
+    }
 }

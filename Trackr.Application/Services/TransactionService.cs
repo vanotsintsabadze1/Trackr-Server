@@ -96,7 +96,13 @@ public class TransactionService : ITransactionService
     {
         Guid userGuidId = new Guid(id);
         var currentAndPreviousMonthExpenses = await _tranRepository.GetCurrentAndPreviousMonthExpenses(userGuidId, cancellationToken);
-
         return currentAndPreviousMonthExpenses;
+    }
+
+    public async Task<SortedDictionary<int, decimal>> GetExpensesForTheWholeYear(string id, CancellationToken cancellationToken)
+    {
+        Guid userGuidId = new Guid(id);
+        var expensesOfTheWholeYear = await _tranRepository.GetExpensesForTheWholeYear(userGuidId, cancellationToken);
+        return expensesOfTheWholeYear;
     }
 }

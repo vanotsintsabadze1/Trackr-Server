@@ -86,4 +86,21 @@ public class TransactionRepository : BaseRepository<Transaction>, ITransactionRe
             CurrentMonth = currentMonthExpenses
         };
     }
+
+    public async Task<SortedDictionary<int, decimal>> GetExpensesForTheWholeYear(Guid id, CancellationToken cancellationToken)
+    {
+        var expenses = await base.GetAll(t => t.TranDate.Year == DateTime.Now.Year && t.UserId == id, cancellationToken);
+        SortedDictionary<int, decimal> expensesCollectionByMonths = new();
+
+        await Task.Run(() =>
+        {
+            for (int i = 1; i < 13; i++)
+            {
+                var monthFullExpense = expenses.AsParallel().Where(t => t.TranDate.Month == i).Aggregate(0m, (sum, t) => sum + t.Amount);
+                expensesCollectionByMonths.Add(i, monthFullExpense);
+            }
+        }, cancellationToken);
+
+        return expensesCollectionByMonths;
+    }
 }
