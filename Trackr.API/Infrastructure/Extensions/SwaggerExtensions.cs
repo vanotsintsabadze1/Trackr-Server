@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.OpenApi.Models;
+using Trackr.API.Infrastructure.Helpers;
 
 namespace Trackr.API.Infrastructure.Extensions;
 
@@ -7,7 +9,10 @@ public static class SwaggerExtensions
 {
     public static IServiceCollection ConfigureSwagger(this IServiceCollection services)
     {
-        services.AddControllers();
+        services.AddControllers(options =>
+        {
+            options.Conventions.Add(new RouteTokenTransformerConvention(new ControllerNameTransformer()));
+        });
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(x =>
         {

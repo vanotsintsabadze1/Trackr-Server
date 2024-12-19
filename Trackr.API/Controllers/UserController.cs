@@ -13,7 +13,7 @@ namespace Trackr.API.Controllers;
 
 [ApiController]
 [ApiVersion(1)]
-[Route("/v{version:apiversion}/User")]
+[Route("/v{version:apiversion}/[controller]")]
 public class UserController : ControllerBase
 {
     private IUserService _userService;
@@ -23,7 +23,7 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
-    [HttpPost("Register")]
+    [HttpPost("register")]
     public async Task<UserResponseModel> Register([FromBody] UserRequestModel user, CancellationToken cancellationToken)
     {
         UserResponseModel res = await _userService.Register(user, cancellationToken);
@@ -31,7 +31,7 @@ public class UserController : ControllerBase
         return res;
     }
 
-    [HttpPost("Login")]
+    [HttpPost("login")]
     public async Task<string> Login([FromBody] UserLoginRequestModel user, CancellationToken cancellationToken)
     {
         string res = await _userService.Login(user, cancellationToken);
@@ -39,7 +39,7 @@ public class UserController : ControllerBase
     }
 
     [Authorize]
-    [HttpPatch("UpdateCostLimit")]
+    [HttpPatch("cost-limit")]
     public async Task<UserResponseModel> UpdateCostLimit([FromBody] CostLimitModel costLimit, CancellationToken cancellationToken)
     {
         var id = CredentialRetriever.GetUserId(HttpContext);
@@ -48,7 +48,7 @@ public class UserController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("GetBalance")]
+    [HttpGet("balance")]
     public async Task<BalanceModel> GetBalance(CancellationToken cancellationToken)
     {
         var id = CredentialRetriever.GetUserId(HttpContext);
@@ -57,7 +57,7 @@ public class UserController : ControllerBase
     }
 
     [Authorize]
-    [HttpPatch("UpdateBalance")]
+    [HttpPatch("balance")]
     public async Task<UserResponseModel> UpdateBalance(BalanceModel newBalance, CancellationToken cancellationToken)
     {
         var id = CredentialRetriever.GetUserId(HttpContext);

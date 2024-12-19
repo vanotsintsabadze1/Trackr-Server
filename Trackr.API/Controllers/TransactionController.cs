@@ -23,7 +23,7 @@ public class TransactionController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("GetUserTransactions")]
+    [HttpGet]
     public async Task<List<Transaction>> GetUserTransactions(int count, int page, CancellationToken cancellationToken)
     {
         var id = CredentialRetriever.GetUserId(HttpContext);
@@ -32,7 +32,7 @@ public class TransactionController : ControllerBase
     }
 
     [Authorize]
-    [HttpPost("AddTransaction")]
+    [HttpPost]
     [Produces("application/json")]
     public async Task<Transaction> Add(TransactionRequestModel transaction, CancellationToken cancellationToken)
     {
@@ -42,7 +42,7 @@ public class TransactionController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("GetLatestTransaction")]
+    [HttpGet("latest-transactions")]
     [Produces("application/json")]
     public async Task<List<Transaction>> GetLatestTransaction(int transactionCount, CancellationToken cancellationToken)
     {
@@ -52,7 +52,7 @@ public class TransactionController : ControllerBase
     }
 
     [Authorize]
-    [HttpDelete("DeleteTransaction/{transactionId}")]
+    [HttpDelete("{transactionId}")]
     [Produces("application/json")]
     public async Task<Transaction> DeleteTransaction(Guid transactionId, CancellationToken cancellationToken)
     {
@@ -62,7 +62,7 @@ public class TransactionController : ControllerBase
     }
 
     [Authorize]
-    [HttpPut("EditTransaction/{transactionId}")]
+    [HttpPut("{transactionId}")]
     [Produces("application/json")]
     public async Task<Transaction> EditTransaction(TransactionRequestModel newTransaction, Guid transactionId
 , CancellationToken cancellationToken)
@@ -73,7 +73,7 @@ public class TransactionController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("GetMoneySpent")]
+    [HttpGet("money-spent")]
     [Produces("application/json")]
     public async Task<MoneySpentModel> GetMoneySpent(CancellationToken cancellationToken)
     {
@@ -83,7 +83,7 @@ public class TransactionController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("GetPreviousAndCurrentMonthExpenses")]
+    [HttpGet("previous-and-current-month")]
     [Produces("application/json")]
     public async Task<CurrentAndPreviousMonthExpensesModel> GetCurrentAndPreviousMonthExpenses(CancellationToken cancellationToken)
     {
@@ -93,7 +93,7 @@ public class TransactionController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("GetExpensesForTheWholeYear")]
+    [HttpGet("yearly-expense")]
     [Produces("application/json")]
     public async Task<SortedDictionary<int, decimal>> GetExpensesOfTheWholeYear(CancellationToken cancellationToken)
     {
