@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Text.Json.Serialization;
 using Trackr.Application.Exceptions;
 
 namespace Trackr.API.Infrastructure.Errors;
@@ -7,21 +8,24 @@ namespace Trackr.API.Infrastructure.Errors;
 public class APIError : ProblemDetails
 {
     private const string _unhandledErrorCode = "UnhandledErrorCode";
-    
+    private string? traceId;
+
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
+    [JsonPropertyName("code")]
     public string Code { get; set; }
 
+    [JsonPropertyName("traceId")]
     public string? TraceId
     {
         get
         {
-            if (Extensions.TryGetValue("TraceId", out var traceId))
+            if (Extensions.TryGetValue("traceId", out var traceId))
             {
                 return (string?)traceId;
             }
             return null;
         }
-        set => Extensions["TraceId"] = value;
+        set => Extensions["traceId"] = value;
     }
 
     public APIError(HttpContext ctx, Exception ex)
