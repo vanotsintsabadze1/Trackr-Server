@@ -44,6 +44,22 @@ public class APIError : ProblemDetails
         
     }
 
+    private void HandleException(NotFoundException ex)
+    {
+        Code = ex.Code;
+        Title = ex.Message;
+        Status = (int)HttpStatusCode.NotFound;
+        Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.4";
+    }
+
+    private void HandleException(ConflictException ex)
+    {
+        Code = ex.Code;
+        Title = ex.Message;
+        Status = (int)HttpStatusCode.Conflict;
+        Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.8";
+    }
+
     private void HandleException(UserAlreadyExistsException ex)
     {
         Code = ex.Code;
