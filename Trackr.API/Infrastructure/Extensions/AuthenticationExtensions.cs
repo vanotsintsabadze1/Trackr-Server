@@ -22,6 +22,9 @@ public static class AuthenticationExtensions
                 ValidateAudience = false,
             };
         });
+
+
+
         return services;
     }
 }
