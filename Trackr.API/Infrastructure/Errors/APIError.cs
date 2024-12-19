@@ -60,35 +60,20 @@ public class APIError : ProblemDetails
         Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.8";
     }
 
-    private void HandleException(UserAlreadyExistsException ex)
+    private void HandleException(BadRequestException ex)
     {
-        Code = ex.Code;
-        Title = ex.Message;
-        Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.8";
-        Status = (int)HttpStatusCode.Conflict;
-    }
 
-    private void HandleException(InvalidUserException ex)
-    {
         Code = ex.Code;
         Title = ex.Message;
-        Type = "https://datatracker.ietf.org/doc/html/rfc7235#section-3.1";
-        Status = (int)HttpStatusCode.Unauthorized;
-    }
-
-    private void HandleException(InvalidTransactionException ex)
-    {
-        Code = ex.Code;
-        Title = ex.Message;
-        Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1";
         Status = (int)HttpStatusCode.BadRequest;
+        Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1";
     }
 
-    private void HandleException(UserUnauthorizedException ex)
+    private void HandleException(UnauthorizedException ex)
     {
         Code = ex.Code;
         Title = ex.Message;
-        Type = "https://datatracker.ietf.org/doc/html/rfc7235#section-3.1";
         Status = (int)HttpStatusCode.Unauthorized;
+        Type = "https://datatracker.ietf.org/doc/html/rfc7235#section-3.1";
     }
 }
