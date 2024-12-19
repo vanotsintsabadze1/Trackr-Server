@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Moq;
 using Trackr.Application.Exceptions;
 using Trackr.Application.Interfaces;
@@ -14,12 +15,14 @@ public class RegisterCommandTests
     private readonly Mock<IUserRepository> _userRepositoryMock = new Mock<IUserRepository>();
     private readonly Mock<IPasswordHasher> _passwordHasherMock = new Mock<IPasswordHasher>();
     private readonly Mock<IJwtManager> _jwtManagerMock = new Mock<IJwtManager>();
+    private readonly Mock<IEmailSender> _emailSenderMock = new Mock<IEmailSender>();
+
 
     [Fact]
     public async Task Register_ReturnsCorrectType_WhenPassedCorrectPayload()
     {
         // Arrange
-        var userService = new UserService(_userRepositoryMock.Object, _passwordHasherMock.Object, _jwtManagerMock.Object);
+        var userService = new UserService(_userRepositoryMock.Object, _passwordHasherMock.Object, _jwtManagerMock.Object, _emailSenderMock.Object);
         var model = new Faker<UserRequestModel>()
             .RuleFor(u => u.Name, f => f.Internet.UserName())
             .RuleFor(u => u.Email, f => f.Internet.Email())
@@ -39,7 +42,7 @@ public class RegisterCommandTests
     public async Task Register_ThrowsAnError_WhenUserExists()
     {
         // Arrange
-        var userService = new UserService(_userRepositoryMock.Object, _passwordHasherMock.Object, _jwtManagerMock.Object);
+        var userService = new UserService(_userRepositoryMock.Object, _passwordHasherMock.Object, _jwtManagerMock.Object, _emailSenderMock.Object);
         var registerModel = new Faker<UserRequestModel>()
             .RuleFor(u => u.Name, f => f.Internet.UserName())
             .RuleFor(u => u.Email, f => f.Internet.Email())
@@ -58,6 +61,6 @@ public class RegisterCommandTests
         _userRepositoryMock.Setup(repo => repo.GetByEmail(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(model);
 
         // Act && Assert
-        await Assert.ThrowsAsync<UserAlreadyExistsException>(async () => await userService.Register(registerModel, It.IsAny<CancellationToken>()));
+        await Assert.ThrowsAsync<ConflictException>(async () => await userService.Register(registerModel, It.IsAny<CancellationToken>()));
     }
 }

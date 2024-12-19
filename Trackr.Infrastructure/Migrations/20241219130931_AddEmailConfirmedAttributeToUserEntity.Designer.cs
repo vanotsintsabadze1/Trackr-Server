@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Trackr.Infrastructure.Context;
 
@@ -11,9 +12,11 @@ using Trackr.Infrastructure.Context;
 namespace Trackr.Infrastructure.Migrations
 {
     [DbContext(typeof(TrackrDBContext))]
-    partial class TrackrDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241219130931_AddEmailConfirmedAttributeToUserEntity")]
+    partial class AddEmailConfirmedAttributeToUserEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

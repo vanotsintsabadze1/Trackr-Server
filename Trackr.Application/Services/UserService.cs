@@ -1,5 +1,7 @@
 ﻿using Mapster;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Configuration;
+using System.Security.Claims;
 using Trackr.Application.Exceptions;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
@@ -15,18 +17,20 @@ public class UserService : IUserService
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtManager _jwtManager;
     private readonly IEmailSender _emailSender;
+    private readonly IConfiguration _configuration;
 
-    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtManager jwtManager, IEmailSender emailSender)
+    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtManager jwtManager, IEmailSender emailSender, IConfiguration configuration)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _jwtManager = jwtManager;
         _emailSender = emailSender;
+        _configuration = configuration;
     }
 
     public async Task<UserResponseModel> Register(UserRequestModel user, CancellationToken cancellationToken)
     {
-        var userFromDb = await _userRepository.GetByEmail(user.Email, cancellationToken); 
+        var userFromDb = await _userRepository.GetByEmail(user.Email, cancellationToken);
 
         if (userFromDb is not null)
         {
@@ -37,6 +41,14 @@ public class UserService : IUserService
 
         var createdUser = await _userRepository.Register(user, hashedPassword);
 
+        var frontEndDomain = _configuration.GetSection("FrontEndConfiguration").GetValue<string>("Domain");
+        var frontEndEndpoint = _configuration.GetSection("FrontEndConfiguration").GetValue<string>("EmailConfirmationEndpoint");
+
+        var token = await _jwtManager.CreateJwtForEmailVerification(user.Email);
+
+        var template = $@"<p>Confirm your email for TrackR by clicking this link here <a href=""{frontEndDomain}{frontEndEndpoint}?token={token}"">click here</a></p>";
+        await _emailSender.SendEmailAsync(user.Email, "TrackR - Confirm your email", template);
+        
         return createdUser.Adapt<UserResponseModel>();
     }
 
@@ -103,5 +115,24 @@ public class UserService : IUserService
             throw new NotFoundException("User does not exist", "UserDoesNotExist");
         }
         return updatedUser.Adapt<UserResponseModel>();
+    }
+    
+    public async Task<bool> ConfirmMail(string token)
+    {
+        var isTokenValid = _jwtManager.Verify(token);
+
+        if (isTokenValid is ClaimsPrincipal principal)
+        {
+            var confirmed = await _userRepository.ConfirmMail(principal.FindFirst(ClaimTypes.Email)!.Value!);
+
+            if (confirmed)
+            {
+                return await Task.FromResult(true);
+            }
+
+            throw new ApplicationException("Could not confirm the email");
+        }
+
+        throw new BadRequestException("Token is invalid", "InvalidToken");
     }
 }

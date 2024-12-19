@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Trackr.Application.Exceptions;
 using Trackr.Application.Interfaces;
 using Trackr.Domain.Models;
 
@@ -54,6 +55,7 @@ public class JwtManager : IJwtManager
         {
             SigningCredentials = credentials,
             Subject = GenerateClaimsForEmailConfirmation(email),
+            Expires = DateTime.UtcNow.AddMinutes(10)
         };
 
         var token = handler.CreateToken(tokenDescriptor);
@@ -85,6 +87,32 @@ public class JwtManager : IJwtManager
         var ci = new ClaimsIdentity(cl);
 
         return ci;
+    }
+
+    public ClaimsPrincipal Verify(string token)
+    {
+        var key = _configuration["Jwt:SecretKey"];
+        var privateKey = Encoding.UTF8.GetBytes(key!);
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        var validationParams = new TokenValidationParameters()
+        {
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuer = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(privateKey)
+        };
+
+        var principal = tokenHandler.ValidateToken(token, validationParams, out SecurityToken secToken);
+
+        if (secToken is JwtSecurityToken validToken)
+        {
+            return principal;
+        }
+
+        throw new UnauthorizedException("Token is invalid", "InvalidToken");
     }
 
 }
