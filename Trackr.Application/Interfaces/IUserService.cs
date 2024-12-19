@@ -13,4 +13,5 @@ public interface IUserService
     Task<UserResponseModel> UpdateCostLimit(decimal costLimit, string id, CancellationToken cancellationToken);
     Task<BalanceModel> GetBalance(string id, CancellationToken cancellationToken);
     Task<UserResponseModel> UpdateBalance(string id, BalanceModel newBalance, CancellationToken cancellationToken);
+    Task<bool> ConfirmMail(string token);
 }

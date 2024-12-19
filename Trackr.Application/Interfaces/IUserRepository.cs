@@ -16,4 +16,5 @@ public interface IUserRepository
     Task<User?> GetById(Guid id, CancellationToken cancellationToken);
     Task<User?> UpdateCostLimit(decimal costLimit, Guid id, CancellationToken cancellationToken);
     Task<User?> UpdateBalance(Guid id, BalanceModel newBalance, CancellationToken cancellationToken);
+    Task<bool> ConfirmMail(string email);
 }

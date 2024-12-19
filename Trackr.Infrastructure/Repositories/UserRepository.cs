@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Trackr.Application.Interfaces;
 using Trackr.Application.Models;
 using Trackr.Application.Models.Transactions;
@@ -23,9 +24,11 @@ public class UserRepository : BaseRepository<User>, IUserRepository
             Password = hashedPassword,
             Balance = 0,
             CostLimit = 0,
+            EmailConfirmed = false,
         };
         var res = await _dbSet.AddAsync(registrationUser);
         await _dbContext.SaveChangesAsync();
+
         return user;
     }
     public bool Delete(string id)
@@ -85,5 +88,19 @@ public class UserRepository : BaseRepository<User>, IUserRepository
             await base.Update(user, cancellationToken);
         };
         return user;
+    }
+
+    public async Task<bool> ConfirmMail(string email)
+    {
+        var user = await _dbSet.FirstOrDefaultAsync<User>(u => u.Email == email);
+        
+        if (user is not null)
+        {
+            user.EmailConfirmed = true;
+            await _dbContext.SaveChangesAsync();
+            return await Task.FromResult(true);
+        }
+
+        return await Task.FromResult(false);
     }
 }

@@ -16,6 +16,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Password).IsRequired().HasMaxLength(100);
         builder.Property(u => u.Balance).IsRequired().HasColumnType("decimal(18,2)");
         builder.Property(u => u.CostLimit).IsRequired().HasColumnType("decimal(18,2)");
+        builder.Property(u => u.EmailConfirmed).IsRequired().HasDefaultValue(false).HasColumnType("bit");
         builder.Property(u => u.CreatedAt).IsRequired().HasColumnType("datetime").HasDefaultValue(DateTime.UtcNow);
     }
 }

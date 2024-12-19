@@ -10,4 +10,5 @@ public class User : IEntity
     public required decimal Balance { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public required decimal CostLimit { get; set; }
+    public required bool EmailConfirmed { get; set; }
 }

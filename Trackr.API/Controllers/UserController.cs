@@ -64,4 +64,12 @@ public class UserController : ControllerBase
         var response = await _userService.UpdateBalance(id, newBalance, cancellationToken);
         return response;
     }
+
+    
+    [HttpPatch("/confirm-email/{token}")]
+    public async Task<bool> ConfirmEmail(string token)
+    {
+        var response = await _userService.ConfirmMail(token);
+        return response;
+    }
 }
