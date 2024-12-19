@@ -68,6 +68,11 @@ public class UserService : IUserService
             throw new BadRequestException("The password is incorrect for the given user", "InvalidPassword");
         }
 
+        if (userFromDb.EmailConfirmed == false)
+        {
+            throw new UnauthorizedException("Email of the user is not confirmed", "UnconfirmedEmail");
+        }
+
         var token = await _jwtManager.CreateJwtForUser(userFromDb);
 
         return token;
