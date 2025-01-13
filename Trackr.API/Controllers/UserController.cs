@@ -23,6 +23,11 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
+    /// <summary>
+    /// Registers the user
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="cancellationToken"></param>
     [HttpPost("register")]
     public async Task<UserResponseModel> Register([FromBody] UserRequestModel user, CancellationToken cancellationToken)
     {
@@ -31,6 +36,12 @@ public class UserController : ControllerBase
         return res;
     }
 
+    /// <summary>
+    /// Logs the user in system
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("login")]
     public async Task<string> Login([FromBody] UserLoginRequestModel user, CancellationToken cancellationToken)
     {
@@ -38,6 +49,12 @@ public class UserController : ControllerBase
         return res;
     }
 
+    /// <summary>
+    /// Returns user's cost limit
+    /// </summary>
+    /// <param name="costLimit"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpPatch("cost-limit")]
     public async Task<UserResponseModel> UpdateCostLimit([FromBody] CostLimitModel costLimit, CancellationToken cancellationToken)
@@ -47,6 +64,11 @@ public class UserController : ControllerBase
         return user;
     }
 
+    /// <summary>
+    /// Returns user's current balance
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpGet("balance")]
     public async Task<BalanceModel> GetBalance(CancellationToken cancellationToken)
@@ -56,6 +78,12 @@ public class UserController : ControllerBase
         return balance;
     }
 
+    /// <summary>
+    /// Updates user's current balance
+    /// </summary>
+    /// <param name="newBalance"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpPatch("balance")]
     public async Task<UserResponseModel> UpdateBalance(BalanceModel newBalance, CancellationToken cancellationToken)
@@ -65,7 +93,11 @@ public class UserController : ControllerBase
         return response;
     }
 
-    
+    /// <summary>
+    /// Confirms the newly registered user's email
+    /// </summary>
+    /// <param name="token"></param>
+    /// <returns></returns>
     [HttpPatch("/confirm-email/{token}")]
     public async Task<bool> ConfirmEmail(string token)
     {

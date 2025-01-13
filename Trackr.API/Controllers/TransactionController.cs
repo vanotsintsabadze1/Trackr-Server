@@ -22,6 +22,13 @@ public class TransactionController : ControllerBase
         _tranService = tranService;
     }
 
+    /// <summary>
+    /// Gets all of the user's transactions
+    /// </summary>
+    /// <param name="count"></param>
+    /// <param name="page"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpGet]
     public async Task<List<Transaction>> GetUserTransactions(int count, int page, CancellationToken cancellationToken)
@@ -31,6 +38,13 @@ public class TransactionController : ControllerBase
         return transactions;
     }
 
+
+    /// <summary>
+    /// Adds the user transaction to the history
+    /// </summary>
+    /// <param name="transaction"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpPost]
     [Produces("application/json")]
@@ -41,6 +55,12 @@ public class TransactionController : ControllerBase
         return responseTransaction;
     }
 
+    /// <summary>
+    /// Gets a given amount of the latest transactions
+    /// </summary>
+    /// <param name="transactionCount"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpGet("latest-transactions")]
     [Produces("application/json")]
@@ -51,6 +71,12 @@ public class TransactionController : ControllerBase
         return latestTransactions;
     }
 
+    /// <summary>
+    /// Deletes a transaction with a given id
+    /// </summary>
+    /// <param name="transactionId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpDelete("{transactionId}")]
     [Produces("application/json")]
@@ -61,6 +87,13 @@ public class TransactionController : ControllerBase
         return transaction;
     }
 
+    /// <summary>
+    /// Edits the transaction with a given id
+    /// </summary>
+    /// <param name="newTransaction"></param>
+    /// <param name="transactionId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpPut("{transactionId}")]
     [Produces("application/json")]
@@ -72,6 +105,11 @@ public class TransactionController : ControllerBase
         return transaction;
     }
 
+    /// <summary>
+    /// Gets the amount of money that the user spent in this month
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpGet("money-spent")]
     [Produces("application/json")]
@@ -82,6 +120,11 @@ public class TransactionController : ControllerBase
         return moneySpent;
     }
 
+    /// <summary>
+    /// Returns an object with previous and current month total expenses
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpGet("previous-and-current-month")]
     [Produces("application/json")]
@@ -92,6 +135,11 @@ public class TransactionController : ControllerBase
         return currentAndPreviousMonthExpenses;
     }
 
+    /// <summary>
+    /// Returns expense of every month in a previous year
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpGet("yearly-expense")]
     [Produces("application/json")]
