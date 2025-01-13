@@ -65,7 +65,7 @@ public class UserService : IUserService
         
         if (!matches)
         {
-            throw new BadRequestException("The password is incorrect for the given user", "InvalidPassword");
+            throw new UnauthorizedException("The password is incorrect for the given user", "InvalidPassword");
         }
 
         if (userFromDb.EmailConfirmed == false)
