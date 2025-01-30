@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using Trackr.API.Infrastructure.Helpers;
 
 namespace Trackr.API.Infrastructure.Extensions;
@@ -41,6 +42,10 @@ public static class SwaggerExtensions
             };
 
             x.AddSecurityRequirement(securityRequirements);
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+            x.IncludeXmlComments(xmlPath);
 
         });
 

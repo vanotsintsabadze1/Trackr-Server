@@ -22,6 +22,14 @@ public class TransactionController : ControllerBase
         _tranService = tranService;
     }
 
+    /// <summary>
+    /// Gets all the user's transactions
+    /// </summary>
+    /// <param name="count"></param>
+    /// <param name="page"></param>
+    /// <param name="cancellationToken"></param>
+    /// <response code="200">Transactions were retrieved successfully</response>
+    /// <response code="500">Something went wrong on the server</response>
     [Authorize]
     [HttpGet]
     public async Task<List<Transaction>> GetUserTransactions(int count, int page, CancellationToken cancellationToken)
@@ -31,6 +39,14 @@ public class TransactionController : ControllerBase
         return transactions;
     }
 
+
+    /// <summary>
+    /// Adds the user transaction to the history
+    /// </summary>
+    /// <param name="transaction"></param>
+    /// <param name="cancellationToken"></param>
+    /// <response code="200">Transactions was added successfully</response>
+    /// <response code="500">Something went wrong on the server</response>
     [Authorize]
     [HttpPost]
     [Produces("application/json")]
@@ -41,6 +57,14 @@ public class TransactionController : ControllerBase
         return responseTransaction;
     }
 
+    /// <summary>
+    /// Gets a given amount of the latest transactions
+    /// </summary>
+    /// <param name="transactionCount"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <response code="200">Transactions were retrieved successfully</response>
+    /// <response code="500">Something went wrong on the server</response>
     [Authorize]
     [HttpGet("latest-transactions")]
     [Produces("application/json")]
@@ -51,6 +75,15 @@ public class TransactionController : ControllerBase
         return latestTransactions;
     }
 
+    /// <summary>
+    /// Deletes a transaction with a given id
+    /// </summary>
+    /// <param name="transactionId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <response code="200">Transaction was deleted successfully</response>
+    /// <response code="404">Transaction is invalid</response>
+    /// <response code="401">Unauthorized to delete the transaction</response>
+    /// <response code="500">Something went wrong on the server</response>
     [Authorize]
     [HttpDelete("{transactionId}")]
     [Produces("application/json")]
@@ -61,6 +94,16 @@ public class TransactionController : ControllerBase
         return transaction;
     }
 
+    /// <summary>
+    /// Edits the transaction with a given id
+    /// </summary>
+    /// <param name="newTransaction"></param>
+    /// <param name="transactionId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <response code="200">Transaction was edited successfully</response>
+    /// <response code="404">Transaction is invalid</response>
+    /// <response code="401">Unauthorized to edit the transaction</response>
+    /// <response code="500">Something went wrong on the server</response>
     [Authorize]
     [HttpPut("{transactionId}")]
     [Produces("application/json")]
@@ -72,6 +115,13 @@ public class TransactionController : ControllerBase
         return transaction;
     }
 
+    /// <summary>
+    /// Gets the amount of money that the user spent in this month
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <response code="200">Spent money was retrieved successfully</response>
+    /// <response code="500">Something went wrong on the server</response>
     [Authorize]
     [HttpGet("money-spent")]
     [Produces("application/json")]
@@ -82,6 +132,12 @@ public class TransactionController : ControllerBase
         return moneySpent;
     }
 
+    /// <summary>
+    /// Returns an object with previous and current month total expenses
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <response code="200">Expenses were retrieved successfully</response>
+    /// <response code="500">Something went wrong on the server</response>
     [Authorize]
     [HttpGet("previous-and-current-month")]
     [Produces("application/json")]
@@ -92,6 +148,13 @@ public class TransactionController : ControllerBase
         return currentAndPreviousMonthExpenses;
     }
 
+    /// <summary>
+    /// Returns expense of every month in a previous year
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <response code="200">Expenses were retrieved successfully</response>
+    /// <response code="500">Something went wrong on the server</response>
     [Authorize]
     [HttpGet("yearly-expense")]
     [Produces("application/json")]
